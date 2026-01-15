@@ -1,0 +1,2695 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Metadatos para compartir en redes sociales -->
+    <meta property="og:title" content="Buscador de obras del TCE SXXI">
+    <meta property="og:description" content="Buscador de obras del Teatro Contemporáneo Español del Siglo XXI">
+    <meta property="og:image" content="PruebaTCE5.png">
+    <meta property="og:url" content="URL_DE_TU_SITIO">
+    
+    <!-- Favicon -->
+    <!-- <link rel="icon" type="image/png" href="PruebaTCE5.png"> -->
+    <title>Buscador de obras del TCE SXXI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100vh;
+            background-color: #dfdfdf7e;
+        }
+    
+        h1 {
+            color: #333;
+        }
+    
+        #buscador {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+        }
+    
+        #buscador input, #buscador select {
+            margin-right: 10px;
+            padding: 5px;
+        }
+    
+        #buscador label {
+            margin-right: 10px;
+        }
+    
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+    
+        th, td {
+            padding: 20px 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+    
+        th:first-child, 
+        td:first-child {
+            width: 50px;
+            min-width: 50px;
+            max-width: 50px;
+        }
+    
+        th {
+            background-color: #E09900;
+            color: white;
+            cursor: pointer;
+        }
+    
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    
+        tr:nth-child(odd) {
+            background-color: #ffffff;
+        }
+    
+        tr:hover {
+            background-color: #e6e6e6;
+        }
+    
+        .filtro-fechas {
+            display: flex;
+            gap: 10px;
+            margin-left: 20px;
+        }
+    
+        .filtro-fechas input[type="date"] {
+            padding: 5px;
+        }
+    
+        .reset-btn {
+            margin-left: 10px;
+            padding: 5px 10px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    
+        .reset-btn:hover {
+            background-color: #d32f2f;
+        }
+        .lugar-link {
+        color: #1a73e8;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    
+    .lugar-link:hover {
+        text-decoration: underline;
+    }
+    
+    /* Estilos para badges de tipo Nacional/Internacional */
+    .tipo-badge {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 3px;
+        font-size: 11px;
+        font-weight: bold;
+        margin-left: 5px;
+    }
+
+    .tipo-nacional {
+        background-color: #90EE90;
+        color: #006400;
+    }
+
+    .tipo-internacional {
+        background-color: #FFD700;
+        color: #8B4513;
+    }
+
+    /* Fila completa con color sutil de fondo */
+    tr.nacional {
+        background-color: rgba(144, 238, 144, 0.1) !important;
+    }
+
+    tr.internacional {
+        background-color: rgba(255, 215, 0, 0.1) !important;
+    }
+
+    tr.nacional:hover,
+    tr.internacional:hover {
+        background-color: #e6e6e6 !important;
+    }
+    
+    /* Estilo para el contenedor del mapa */
+    #map-container {
+        margin: 20px 0;
+        padding: 15px;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    #map {
+        height: 400px;
+        width: 100%;
+        border-radius: 5px;
+    }
+    
+    /* Estilo para el contenedor de visualizaciones */
+    .visualizations-container {
+        display: flex;
+        gap: 20px;
+        height: 400px;
+    }
+
+    #map-container, #network-container {
+        flex: 1;
+        padding: 15px;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    #map, #network {
+        height: 400px;
+        width: 100%;
+        border-radius: 5px;
+    }
+
+    /* Estilos para hacer la tabla scrolleable */
+    .table-container {
+        flex: 1;
+        min-height: 0;
+        overflow: auto;
+        background-color: white;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    #tablaObras {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    #tablaObras thead {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+    #tablaObras thead th {
+        background-color: #E09900;
+        border-bottom: 2px solid #b30000;
+    }
+
+    #tablaObras tbody tr:first-child td {
+        border-top: none;
+    }
+
+    /* Estilos para filas clicables */
+    #tablaObras tbody tr {
+        cursor: pointer;
+        transition: background-color 0.2s ease, transform 0.1s ease;
+    }
+
+    #tablaObras tbody tr:hover {
+        background-color: #fff3e0;
+        transform: scale(1.005);
+    }
+
+    #tablaObras tbody tr:active {
+        background-color: #ffe0b2;
+    }
+
+    /* Asegurar que el contenido principal no se desplace */
+    .main-content {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        padding: 10px;
+        box-sizing: border-box;
+        gap: 10px;
+    }
+
+    .content-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        flex: 1;
+        overflow: hidden;
+    }
+
+    /* Estilos para el botón de toggle */
+    .visualizations-toggle {
+        margin: 10px 0;
+    }
+
+    .toggle-btn {
+        padding: 5px 10px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+        background-color: #E09900;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9em;
+        flex-direction: row;
+    }
+
+    .toggle-btn:hover {
+        background-color: #b30000;
+    }
+
+    .toggle-btn i {
+        font-size: 1.1em;
+        padding: 0;
+        margin: 0;
+    }
+
+    .toggle-btn .arrow {
+        font-size: 0.8em;
+        transition: transform 0.3s ease;
+    }
+
+    /* Rotar flecha cuando está colapsado */
+    .search-section.collapsed + .search-toggle .arrow {
+        transform: rotate(180deg);
+    }
+
+    /* Ajustar el padding de los encabezados de la tabla */
+    #tablaObras th {
+        padding: 8px 12px; /* Reducir el padding vertical de 20px a 8px */
+        text-align: left;
+        background-color: #E09900;
+        color: white;
+        cursor: pointer;
+        border-bottom: 2px solid #b30000;
+    }
+
+    /* Mantener el padding de las celdas del cuerpo como está */
+    #tablaObras td {
+        padding: 20px 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .obra-popup {
+        padding: 5px;
+        min-width: 200px;
+    }
+
+    .obra-popup button.ver-grafo {
+        margin-top: 8px;
+        padding: 4px 12px;
+        background-color: #FB7E81;
+        border: 1px solid #d45659;
+        border-radius: 4px;
+        color: white;
+        cursor: pointer;
+        display: block;
+        width: 100%;
+    }
+
+    .obra-popup button.ver-grafo:hover {
+        background-color: #d45659;
+    }
+
+    /* Estilos personalizados para los clusters */
+    .marker-cluster-small {
+        background-color: rgba(251, 126, 129, 0.6) !important;
+    }
+
+    .marker-cluster-small div {
+        background-color: rgba(212, 86, 89, 0.8) !important;
+        color: white !important;
+    }
+
+    .marker-cluster-medium {
+        background-color: rgba(251, 126, 129, 0.6) !important;
+    }
+
+    .marker-cluster-medium div {
+        background-color: rgba(212, 86, 89, 0.8) !important;
+        color: white !important;
+    }
+
+    .marker-cluster-large {
+        background-color: rgba(251, 126, 129, 0.6) !important;
+    }
+
+    .marker-cluster-large div {
+        background-color: rgba(212, 86, 89, 0.8) !important;
+        color: white !important;
+    }
+
+    .logo {
+        height: 50px;
+        width: auto;
+        display: block;
+        border: 1px solid red; /* Temporal para debugging */
+    }
+
+    .header-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+
+    .logo-container {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        height: 50px;
+    }
+
+    .logo {
+        height: 100%;
+        width: auto;
+        display: block;
+    }
+
+    #buscador {
+        flex-grow: 1;
+        margin-bottom: 0;
+        padding: 0;
+        background-color: transparent;
+        box-shadow: none;
+    }
+
+    .title-bar {
+        background-color: #E09900;
+        color: white;
+        padding: 10px 20px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+    }
+
+    .title-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .title-bar .logo {
+        height: 60px;
+        width: auto;
+    }
+
+    .title-bar h1 {
+        margin: 0;
+        color: white;
+        font-size: 1.8em;
+    }
+
+    .estadisticas-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        margin-bottom: 10px;
+    }
+
+    .stats-group {
+        display: flex;
+        gap: 20px;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 1.1em;
+    }
+
+    .stat-item i {
+        color: #E09900;
+    }
+
+    /* Ajustar el estilo del botón para que coincida con la barra */
+    .toggle-btn {
+        padding: 5px 10px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+    }
+
+    .toggle-btn i {
+        font-size: 1.1em;
+        border: none;
+        padding: 0;
+    }
+
+    .visualizations-section {
+        transition: all 0.3s ease-in-out;
+        overflow: hidden;
+        height: auto;
+        opacity: 1;
+        margin-bottom: 10px;
+    }
+
+    .visualizations-section.collapsed {
+        height: 0;
+        opacity: 0;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Rotar flecha cuando está colapsado */
+    .visualizations-section.collapsed + .toggle-btn .arrow {
+        transform: rotate(180deg);
+    }
+
+    /* Asegurarse de que el contenedor principal tenga el espacio correcto */
+    .content-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        flex: 1;
+        overflow: hidden;
+    }
+
+    /* Estadísticas container */
+    .estadisticas-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        margin-bottom: 10px;
+    }
+
+    .stats-group {
+        display: flex;
+        gap: 20px;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 1.1em;
+    }
+
+    .stat-item i {
+        color: #E09900;
+    }
+
+    /* Nuevos estilos para el sidebar */
+    .sidebar {
+        width: 300px;
+        height: calc(100vh - 80px);
+        position: fixed;
+        left: 0;
+        top: 80px;
+        background-color: white;
+        box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        padding: 20px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .main-content {
+        margin-left: 270px;
+        padding: 10px;
+        padding-top: 80px;
+        height: 100vh;
+        box-sizing: border-box;
+        overflow-y: auto;
+    }
+
+    /* Ajustes para los elementos del buscador en vertical */
+    #buscador {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin: 0;
+        padding: 0;
+        background: none;
+        box-shadow: none;
+    }
+
+    #buscador input, 
+    #buscador select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    .form-check {
+        margin: 10px 0;
+    }
+
+    #resetFiltros {
+        width: 100%;
+        padding: 8px;
+        margin-top: 10px;
+    }
+
+    /* Ajuste para el contenedor principal */
+    .content-wrapper {
+        width: 100%;
+        padding: 10px;
+    }
+
+    /* Estilos para las listas únicas */
+    .lista-unicos {
+        height: 200px;
+        min-height: 200px;
+        max-height: 200px;
+        overflow-y: auto;
+        margin: 0;
+        padding: 5px;
+        background-color: #ffffff;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        font-size: 0.9em;
+        line-height: 1.5;
+        scrollbar-width: thin;
+        flex: 0 0 auto;
+    }
+
+    /* Estilos para el scrollbar en navegadores webkit (Chrome, Safari, etc.) */
+    .lista-unicos::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .lista-unicos::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+    }
+
+    .lista-unicos::-webkit-scrollbar-thumb {
+        background: #E09900;
+        border-radius: 3px;
+    }
+
+    .lista-unicos::-webkit-scrollbar-thumb:hover {
+        background: #b30000;
+    }
+
+    /* Ajustar el espaciado entre los campos de búsqueda y sus listas */
+    #buscador input {
+        margin-bottom: 5px;
+    }
+
+    /* Ajustar el ancho del sidebar para acomodar mejor las listas scrollables */
+    .sidebar {
+        width: 300px;
+        padding: 20px;
+    }
+
+    /* Ajustar el margen del contenido principal */
+    .main-content {
+        margin-left: 320px;
+    }
+
+    /* Estilos para los items de las listas únicas */
+    .lista-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 4px 0;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+    }
+
+    .lista-item:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    .lista-item:nth-child(odd) {
+        background-color: #ffffff;
+    }
+
+    .lista-item:last-child {
+        border-bottom: none;
+    }
+
+    .item-nombre {
+        flex-grow: 1;
+        margin-right: 10px;
+    }
+
+    .item-contador {
+        background-color: #E09900;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.8em;
+        min-width: 24px;
+        text-align: center;
+    }
+
+    /* Ajustar el estilo de la lista para mejor legibilidad */
+    .lista-unicos {
+        height: 200px;
+        overflow-y: auto;
+        margin: 10px 0;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        font-size: 0.9em;
+        line-height: 1.5;
+        scrollbar-width: thin;
+    }
+
+    .lista-unicos:hover .item-contador {
+        background-color: #b30000;
+    }
+
+    .lista-item:hover {
+        background-color: #e6e6e6;
+    }
+
+    .lista-item:active {
+        background-color: #dcdcdc;
+    }
+
+    /* Estilos para la disposición horizontal de búsqueda y botones */
+    .busqueda-con-botones {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin-bottom: 5px;
+        background-color: #f0f0f0;
+        padding: 8px;
+        border-radius: 5px;
+        flex: 0 0 auto;
+    }
+
+    .busqueda-con-botones input {
+        flex-grow: 1;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        width: 100%;
+    }
+
+    .icon-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #333;
+        font-size: 1.2em;
+        padding: 5px;
+        transition: color 0.3s;
+    }
+
+    .icon-btn:hover {
+        color: #E09900;
+    }
+
+    /* Nuevo contenedor para cada grupo de búsqueda */
+    .grupo-busqueda {
+        background-color: #ffffff;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        transition: box-shadow 0.3s ease;
+    }
+
+    .grupo-busqueda:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    /* Ajustar el espaciado del input y botones */
+    .busqueda-con-botones {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin-bottom: 2px;
+        background-color: #f8f9fa;
+        padding: 5px;
+        border-radius: 4px;
+        flex: 0 0 auto;
+    }
+
+    /* Agregar estos estilos */
+    .filtros-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: auto;
+        padding: 20px 0;
+        gap: 10px;
+    }
+
+    .form-check {
+        margin: 0;  /* Eliminar el margen que tenía antes */
+    }
+
+    #resetFiltros {
+        margin: 0;  /* Eliminar el margen que tenía antes */
+    }
+
+    /* Ajustar el sidebar para usar flexbox */
+    .sidebar {
+        display: flex;
+        flex-direction: column;
+        /* ... resto de propiedades existentes ... */
+    }
+
+    #buscador {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        /* ... resto de propiedades existentes ... */
+    }
+
+    .input-wrapper {
+        position: relative;
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+    }
+
+    .input-wrapper input {
+        width: 100%;
+        padding-right: 30px; /* Espacio para el botón de limpiar */
+        transition: all 0.3s ease; /* Suavizar la transición del hover */
+    }
+
+    .clear-btn {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #b30000; /* Color rojo para la X */
+        cursor: pointer;
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0.8;
+        transition: all 0.2s;
+        font-size: 1.1em; /* Hacer la X un poco más grande */
+        z-index: 2; /* Asegurar que la X está por encima del input */
+    }
+
+    .clear-btn:hover {
+        opacity: 1;
+        color: #ff0000; /* Rojo más brillante en hover */
+        transform: translateY(-50%) scale(1.1); /* Hacer la X ligeramente más grande en hover */
+    }
+
+    /* Ocultar el botón cuando el input está vacío */
+    .input-wrapper input:placeholder-shown + .clear-btn {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    /* Estilo hover para todo el grupo de input */
+    .input-wrapper:hover input {
+        border-color: #b30000;
+        box-shadow: 0 0 0 0.2rem rgba(179, 0, 0, 0.25);
+    }
+
+    /* Estilo cuando el input tiene focus */
+    .input-wrapper input:focus {
+        border-color: #b30000;
+        box-shadow: 0 0 0 0.2rem rgba(179, 0, 0, 0.25);
+    }
+
+    .vis-tooltip {
+        position: absolute;
+        background-color: white;
+        border: 1px solid #E09900;
+        border-radius: 4px;
+        padding: 8px;
+        font-size: 12px;
+        color: #333;
+        max-width: 300px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        pointer-events: none;
+        z-index: 1000;
+    }
+
+    .custom-tooltip {
+        position: fixed;
+        background-color: white;
+        border: 1px solid #E09900;
+        border-radius: 4px;
+        padding: 12px;
+        font-size: 12px;
+        color: #333;
+        max-width: 300px;
+        max-height: 400px;
+        overflow-y: auto;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        z-index: 1000;
+        transition: opacity 0.2s ease;
+        pointer-events: auto;
+    }
+
+    .custom-tooltip strong {
+        color: #E09900;
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+
+    .custom-tooltip::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .custom-tooltip::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+    }
+
+    .custom-tooltip::-webkit-scrollbar-thumb {
+        background: #E09900;
+        border-radius: 3px;
+    }
+
+    .custom-tooltip::-webkit-scrollbar-thumb:hover {
+        background: #b30000;
+    }
+
+    .tooltip-content {
+        max-width: 300px;
+        padding: 8px;
+    }
+
+    .tooltip-content strong {
+        display: block;
+        margin-bottom: 8px;
+        color: #E09900;
+    }
+
+    .tooltip-content ul {
+        margin: 0;
+        padding-left: 20px;
+        list-style-type: none;
+    }
+
+    .tooltip-content li {
+        margin: 4px 0;
+        position: relative;
+        padding-left: 15px;
+    }
+
+    .tooltip-content li:before {
+        content: "•";
+        color: #E09900;
+        position: absolute;
+        left: 0;
+    }
+
+    /* Agregar estos estilos al final de la sección <style> */
+
+    /* Estilos para dispositivos móviles */
+    @media screen and (max-width: 768px) {
+        /* Ocultar elementos de la versión desktop */
+        .main-content,
+        .visualizations-container,
+        .table-container,
+        .estadisticas-container {
+            display: none !important;
+        }
+
+        /* Ajustar el sidebar para ocupar toda la pantalla */
+        .sidebar {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            top: 0;
+            left: 0;
+            margin: 0;
+            padding: 15px;
+        }
+
+        /* Mostrar mensaje de versión móvil */
+        .sidebar::after {
+            content: "Versión móvil";
+            display: block;
+            text-align: center;
+            padding: 15px;
+            background-color: #E09900;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        /* Ajustar el padding del body */
+        body {
+            padding: 0;
+            margin: 0;
+            overflow: auto;
+        }
+
+        /* Ajustar las listas para mejor visualización en móvil */
+        .lista-unicos {
+            max-height: 150px;
+        }
+
+        /* Hacer los inputs más grandes para mejor interacción táctil */
+        #buscador input,
+        #buscador select,
+        .reset-btn {
+            height: 44px;
+            font-size: 16px;
+        }
+
+        /* Ajustar el tamaño de los botones para mejor interacción táctil */
+        .icon-btn {
+            padding: 10px;
+            font-size: 1.4em;
+        }
+
+        /* Ajustar el espacio entre elementos */
+        .grupo-busqueda {
+            margin-bottom: 20px;
+        }
+    }
+    </style>
+    <!-- Agregar estos enlaces para Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Agregar vis.js -->
+    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <!-- MarkerCluster CSS y JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+    <!-- Agregar Font Awesome en el <head> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Nuevo sidebar -->
+    <div class="sidebar">
+        <div id="buscador">
+            <div class="busqueda-con-botones">
+                <div class="input-wrapper">
+                    <input type="text" id="busqueda-autor" class="form-control" placeholder="Buscar por Autor">
+                    <button class="clear-btn" onclick="clearInput('busqueda-autor')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <button onclick="ordenarLista('autores', 'alfabetico')" class="icon-btn">
+                    <i class="fas fa-sort-alpha-down"></i>
+                </button>
+                <button onclick="ordenarLista('autores', 'contador')" class="icon-btn">
+                    <i class="fas fa-sort-numeric-down"></i>
+                </button>
+            </div>
+            <div id="lista-autores" class="lista-unicos"></div>
+            
+            <div class="busqueda-con-botones">
+                <div class="input-wrapper">
+                    <input type="text" id="busqueda-obra" class="form-control" placeholder="Buscar por Obra">
+                    <button class="clear-btn" onclick="clearInput('busqueda-obra')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <button onclick="ordenarLista('obras', 'alfabetico')" class="icon-btn">
+                    <i class="fas fa-sort-alpha-down"></i>
+                </button>
+                <button onclick="ordenarLista('obras', 'contador')" class="icon-btn">
+                    <i class="fas fa-sort-numeric-down"></i>
+                </button>
+            </div>
+            <div id="lista-obras" class="lista-unicos"></div>
+            
+            <div class="busqueda-con-botones">
+                <div class="input-wrapper">
+                    <input type="text" id="busqueda-direccion" class="form-control" placeholder="Buscar por Dirección">
+                    <button class="clear-btn" onclick="clearInput('busqueda-direccion')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <button onclick="ordenarLista('direcciones', 'alfabetico')" class="icon-btn">
+                    <i class="fas fa-sort-alpha-down"></i>
+                </button>
+                <button onclick="ordenarLista('direcciones', 'contador')" class="icon-btn">
+                    <i class="fas fa-sort-numeric-down"></i>
+                </button>
+            </div>
+            <div id="lista-direcciones" class="lista-unicos"></div>
+            
+            <div class="busqueda-con-botones">
+                <div class="input-wrapper">
+                    <input type="text" id="busqueda-compania" class="form-control" placeholder="Buscar por Compañía">
+                    <button class="clear-btn" onclick="clearInput('busqueda-compania')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <button onclick="ordenarLista('companias', 'alfabetico')" class="icon-btn">
+                    <i class="fas fa-sort-alpha-down"></i>
+                </button>
+                <button onclick="ordenarLista('companias', 'contador')" class="icon-btn">
+                    <i class="fas fa-sort-numeric-down"></i>
+                </button>
+            </div>
+            <div id="lista-companias" class="lista-unicos"></div>
+            
+            <div class="busqueda-con-botones">
+                <div class="input-wrapper">
+                    <input type="text" id="busqueda-festivales" class="form-control" placeholder="Buscar por Festival">
+                    <button class="clear-btn" onclick="clearInput('busqueda-festivales')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <button onclick="ordenarLista('festivales', 'alfabetico')" class="icon-btn">
+                    <i class="fas fa-sort-alpha-down"></i>
+                </button>
+                <button onclick="ordenarLista('festivales', 'contador')" class="icon-btn">
+                    <i class="fas fa-sort-numeric-down"></i>
+                </button>
+            </div>
+            <div id="lista-festivales" class="lista-unicos"></div>
+            
+            <div class="busqueda-con-botones">
+                <div class="input-wrapper">
+                    <input type="text" id="busqueda-lugar" class="form-control" placeholder="Buscar por Lugar">
+                    <button class="clear-btn" onclick="clearInput('busqueda-lugar')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <button onclick="ordenarLista('lugares', 'alfabetico')" class="icon-btn">
+                    <i class="fas fa-sort-alpha-down"></i>
+                </button>
+                <button onclick="ordenarLista('lugares', 'contador')" class="icon-btn">
+                    <i class="fas fa-sort-numeric-down"></i>
+                </button>
+            </div>
+            <div id="lista-lugares" class="lista-unicos"></div>
+            
+            <label for="filtroTipo" style="margin-top: 10px; font-weight: bold;">Tipo:</label>
+            <select id="filtroTipo" class="form-control" onchange="aplicarFiltros()">
+                <option value="">Todos</option>
+                <option value="Nacional">Nacional</option>
+                <option value="Internacional">Internacional</option>
+            </select>
+            
+            <input type="date" id="fechaInicio" class="form-control" placeholder="Fecha inicio">
+            <input type="date" id="fechaFin" class="form-control" placeholder="Fecha fin">
+            
+            <!-- Quitar el checkbox y botón reset de aquí -->
+            
+            <!-- ... resto de campos de búsqueda y listas ... -->
+        </div>
+        
+        <!-- Agregar el nuevo footer fuera del buscador -->
+        <div class="filtros-footer">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="busquedaExacta">
+                <label class="form-check-label" for="busquedaExacta">Búsqueda exacta</label>
+            </div>
+            
+            <button id="resetFiltros" class="reset-btn">
+                <i class="fas fa-undo-alt"></i> Resetear filtros
+            </button>
+        </div>
+    </div>
+
+    <!-- Contenido principal ajustado -->
+    <div class="main-content">
+        <div class="content-wrapper">
+            <div class="title-bar">
+                <div class="title-content">
+                    <!-- <img src="PruebaTCE5.png" alt="Logo TCE" class="logo"> -->
+                    <h1>Teatro Clásico Español - Siglo XXI</h1>
+                </div>
+            </div>
+
+            <div id="estadisticas" class="estadisticas-container">
+                <!-- Eliminar el botón de toggle de visualizaciones -->
+                <!-- <button id="toggleVisualizationsBtn" class="toggle-btn" onclick="toggleVisualizations()">
+                    <i class="fas fa-map-marked-alt"></i>
+                    <i class="fas fa-project-diagram"></i>
+                    <span class="arrow">▼</span>
+                </button> -->
+                
+                <div class="stats-group">
+                    <div class="stat-item" onclick="showAuthors()">
+                        <i class="fas fa-user"></i>
+                        <span>Autores: <span id="count-autores">0</span></span>
+                    </div>
+                    <div class="stat-item" onclick="showWorks()">
+                        <i class="fas fa-theater-masks"></i>
+                        <span>Obras: <span id="count-obras">0</span></span>
+                    </div>
+                    <div class="stat-item" onclick="showFestivals()">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Festivales: <span id="count-festivales">0</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="visualizationsSection" class="visualizations-section">
+                <div class="visualizations-container">
+                    <div id="network-container">
+                        <div id="network"></div>
+                    </div>
+                    <div id="map-container">
+                        <div id="map"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Contenedor de la tabla -->
+            <div class="table-container">
+                <table id="tablaObras">
+                    <thead>
+                        <tr>
+                            <th onclick="ordenarTabla('id')">ID</th>
+                            <th onclick="ordenarTabla('Autor/a')">Autor/a</th>
+                            <th onclick="ordenarTabla('Obra')">Obra</th>
+                            <th onclick="ordenarTabla('Fecha de estreno')">Fecha de estreno</th>
+                            <th onclick="ordenarTabla('Dirección')">Dirección</th>
+                            <th onclick="ordenarTabla('Compañía')">Compañía</th>
+                            <th onclick="ordenarTabla('Festivales')">Festivales</th>
+                            <th onclick="ordenarTabla('Lugar de estreno')">Lugar de estreno</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let obrasOriginales = [];
+        let ordenAscendente = true;
+        let map;
+        let network;
+        let markerClusterGroup;
+
+        // Variable global para almacenar las obras
+        let obras = [];
+
+        async function obtenerObras() {
+    try {
+        const response = await fetch('DATA/data.csv');
+        const csvText = await response.text();
+        
+        // Log del CSV raw para verificar
+        console.log('CSV raw primeras 100 caracteres:', csvText.substring(0, 100));
+        
+        // Procesar CSV manualmente
+        const lines = csvText.split('\n');
+        const headers = lines[0].trim().split('|').map(h => h.trim());
+        
+        console.log('Total de headers:', headers.length);
+        console.log('Headers:', headers);
+        
+        const obras = lines.slice(1)
+            .filter(line => line.trim())  // Filtrar líneas vacías
+            .map((line, lineIndex) => {
+                const values = line.split('|');
+                
+                // Debug primera línea
+                if (lineIndex === 0) {
+                    console.log('Total de valores en primera línea:', values.length);
+                    console.log('Valores:', values);
+                }
+                
+                const obra = {};
+                headers.forEach((header, index) => {
+                    // Asignar el valor, manteniendo strings vacíos como ''
+                    obra[header] = values[index] !== undefined ? values[index].trim() : '';
+                });
+                
+                return obra;
+            });
+        
+        // Log de las primeras 3 obras para verificar estructura
+        console.log('Headers encontrados:', headers);
+        console.log('Primeras 3 obras:', obras.slice(0, 3));
+        console.log('Primera obra completa:', obras[0]);
+        console.log('Lat de primera obra:', obras[0]?.lat, 'Lon:', obras[0]?.lon);
+        console.log('Total obras cargadas:', obras.length);
+        
+        return obras;
+    } catch (error) {
+        console.error('Error al cargar los datos:', error);
+        return [];
+    }
+}
+
+function llenarTabla(obras) {
+    const tbody = document.querySelector('#tablaObras tbody');
+    tbody.innerHTML = '';
+    obras.forEach(obra => {
+        const row = tbody.insertRow();
+        
+        // Añadir clase según tipo
+        if (obra.tipo === 'Nacional') {
+            row.classList.add('nacional');
+        } else if (obra.tipo === 'Internacional') {
+            row.classList.add('internacional');
+        }
+        
+        // Añadir el evento de clic simple a la fila
+        row.addEventListener('click', () => {
+            console.log('Clic en obra:', obra);
+            mostrarDetallesObra(obra);
+        });
+        
+        // Añadir clase para indicar que la fila es interactiva
+        row.classList.add('clickable-row');
+        
+        row.insertCell().textContent = obra.id;
+        row.insertCell().textContent = obra['Autor/a'];
+        
+        // Columna Obra con badge de tipo
+        const obraCell = row.insertCell();
+        const tipoBadge = obra.tipo ? 
+            `<span class="tipo-badge tipo-${obra.tipo.toLowerCase()}">${obra.tipo}</span>` : 
+            '';
+        obraCell.innerHTML = `${obra.Obra}${tipoBadge}`;
+        
+        row.insertCell().textContent = `${obra['Fecha de estreno']}`;
+        row.insertCell().textContent = obra.Dirección;
+        row.insertCell().textContent = obra['Compañía'] || '';
+        row.insertCell().textContent = obra.Festivales;
+        
+        // Convertir el lugar de estreno en un enlace
+        const lugarCell = row.insertCell();
+        const lugar = obra['Lugar de estreno'] || '';
+        if (lugar) {
+            lugarCell.innerHTML = `
+                <a 
+                    class="lugar-link"
+                    href="https://www.google.com/maps/search/${encodeURIComponent(lugar)}"
+                    target="_blank"
+                    title="Buscar en Google Maps">
+                    ${lugar}
+                </a>
+            `;
+        } else {
+            lugarCell.textContent = '';
+        }
+    });
+}
+
+function ordenarTabla(campo) {
+    ordenAscendente = !ordenAscendente;
+    const obras = [...obrasOriginales];
+    
+    obras.sort((a, b) => {
+        // Obtener los valores a comparar
+        let valorA = (a[campo] || '').toString().toLowerCase();
+        let valorB = (b[campo] || '').toString().toLowerCase();
+        
+        // Mover valores vacíos al final
+        if (!valorA && !valorB) return 0;  // Ambos vacíos, mantener orden original
+        if (!valorA) return 1;             // A vacio, mover al final
+        if (!valorB) return -1;            // B vacio, mover al final
+        
+        // Caso especial para el ID (ordenamiento numérico)
+        if (campo === 'id') {
+            return ordenAscendente ? 
+                parseInt(valorA) - parseInt(valorB) : 
+                parseInt(valorB) - parseInt(valorA);
+        }
+        
+        // Caso especial para fechas
+        if (campo === 'fechaFormat' || campo === 'Fecha de estreno') {
+            if (a.fechaFormat && b.fechaFormat) {
+                const [diaA, mesA, anioA] = a.fechaFormat.split('-');
+                const [diaB, mesB, anioB] = b.fechaFormat.split('-');
+                const fechaA = new Date(anioA, mesA - 1, diaA);
+                const fechaB = new Date(anioB, mesB - 1, diaB);
+                return ordenAscendente ? fechaA - fechaB : fechaB - fechaA;
+            }
+        }
+        
+        // Ordenamiento alfabético para el resto de campos
+        return ordenAscendente ? 
+            valorA.localeCompare(valorB, 'es') : 
+            valorB.localeCompare(valorA, 'es');
+    });
+    
+    // Actualizar indicadores visuales
+    document.querySelectorAll('th').forEach(th => {
+        th.classList.remove('asc', 'desc');
+    });
+    const th = document.querySelector(`th[onclick="ordenarTabla('${campo}')"]`);
+    th.classList.add(ordenAscendente ? 'asc' : 'desc');
+    
+    llenarTabla(obras);
+}
+
+function filtrarObras() {
+    if (!Array.isArray(obrasOriginales) || obrasOriginales.length === 0) {
+        console.error('No hay obras originales para filtrar');
+        return;
+    }
+
+    try {
+        const busquedaExacta = document.getElementById('busquedaExacta')?.checked || false;
+        const fechaInicio = document.getElementById('fechaInicio')?.value;
+        const fechaFin = document.getElementById('fechaFin')?.value;
+        const filtroTipo = document.getElementById('filtroTipo')?.value || '';
+
+        // Función para normalizar texto (eliminar acentos y convertir a minúsculas)
+        const normalizarTexto = (texto) => {
+            if (!texto) return '';
+            return texto.toString()
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "");
+        };
+
+        const filtros = [
+            { id: 'busqueda-autor', campo: 'Autor/a' },
+            { id: 'busqueda-obra', campo: 'Obra' },
+            { id: 'busqueda-direccion', campo: 'Dirección' },
+            { id: 'busqueda-compania', campo: 'Compañía' },
+            { id: 'busqueda-festivales', campo: 'Festivales' },
+            { id: 'busqueda-lugar', campo: 'Lugar de estreno' }
+        ].map(f => ({
+            ...f,
+            valor: normalizarTexto(document.getElementById(f.id)?.value || '')
+        }));
+
+        const obrasFiltradas = obrasOriginales.filter(obra => {
+            // Verificar cada filtro de texto
+            const cumpleFiltrosTexto = filtros.every(({ campo, valor }) => {
+                if (!valor) return true;
+                
+                const valorObra = normalizarTexto(obra[campo]);
+                
+                if (campo === 'Festivales' && valorObra.includes(',')) {
+                    const festivales = valorObra.split(',').map(f => normalizarTexto(f.trim()));
+                    return busquedaExacta 
+                        ? festivales.some(f => f === valor)
+                        : festivales.some(f => f.includes(valor));
+                }
+
+                return busquedaExacta 
+                    ? valorObra === valor
+                    : valorObra.includes(valor);
+            });
+
+            // Verificar fechas
+            let cumpleFechas = true;
+            if (fechaInicio || fechaFin) {
+                const fechaObra = obra.fechaFormat 
+                    ? new Date(obra.fechaFormat.split('-').reverse().join('-'))
+                    : null;
+
+                if (fechaObra) {
+                    if (fechaInicio) {
+                        cumpleFechas = cumpleFechas && fechaObra >= new Date(fechaInicio);
+                    }
+                    if (fechaFin) {
+                        cumpleFechas = cumpleFechas && fechaObra <= new Date(fechaFin);
+                    }
+                } else {
+                    cumpleFechas = false;
+                }
+            }
+
+            // Verificar filtro de tipo
+            const cumpleTipo = !filtroTipo || obra.tipo === filtroTipo;
+
+            return cumpleFiltrosTexto && cumpleFechas && cumpleTipo;
+        });
+
+        console.log(`Filtrado completado: ${obrasFiltradas.length} obras encontradas`);
+        
+        // Actualizar visualizaciones
+        llenarTabla(obrasFiltradas);
+        actualizarVisualizaciones(obrasFiltradas);
+        actualizarContadores(obrasFiltradas);
+        actualizarListasUnicas(obrasFiltradas);
+
+    } catch (error) {
+        console.error('Error al filtrar obras:', error);
+    }
+}
+
+function resetearFiltros() {
+    console.log('Reseteando filtros y visualizaciones');
+    
+    // Resetear los campos de búsqueda
+    document.getElementById('busqueda-autor').value = '';
+    document.getElementById('busqueda-obra').value = '';
+    document.getElementById('busqueda-direccion').value = '';
+    document.getElementById('busqueda-compania').value = '';
+    document.getElementById('busqueda-festivales').value = '';
+    document.getElementById('busqueda-lugar').value = '';
+    document.getElementById('fechaInicio').value = '';
+    document.getElementById('fechaFin').value = '';
+    document.getElementById('busquedaExacta').checked = false;
+    document.getElementById('filtroTipo').value = '';
+    
+    // Resetear la tabla
+    llenarTabla(obrasOriginales);
+    
+    // Resetear contadores
+    actualizarContadores(obrasOriginales);
+    
+    // Resetear el network a su estado inicial
+    resetNetwork();
+}
+
+// Función para resetear el network a su estado inicial
+function resetNetwork() {
+    console.log('Reseteando network a estado inicial');
+    
+    // Crear nodos: central y estadísticas
+    const nodes = new vis.DataSet([
+        { 
+            id: 'central', 
+            label: 'TCE-SXXI',
+            shape: 'star',
+            size: 40,
+            color: {
+                background: '#E09900',
+                border: '#b30000'
+            }
+        },
+        { 
+            id: 'autores', 
+            label: 'Autores',
+            shape: 'icon',
+            icon: {
+                face: '"Font Awesome 5 Free"',
+                code: '\uf007',  // fa-user
+                size: 30,
+                color: '#E09900'
+            }
+        },
+        { 
+            id: 'obras', 
+            label: 'Obras',
+            shape: 'icon',
+            icon: {
+                face: '"Font Awesome 5 Free"',
+                code: '\uf02d',  // fa-book (el que funciona al hacer clic)
+                size: 30,
+                color: '#E09900',
+                weight: 900  // Asegurarnos de que carga la versión correcta
+            }
+        },
+        { 
+            id: 'festivales', 
+            label: 'Festivales',
+            shape: 'icon',
+            icon: {
+                face: '"Font Awesome 5 Free"',
+                code: '\uf133',  // fa-calendar-alt
+                size: 30,
+                color: '#E09900'
+            }
+        }
+    ]);
+
+    // Crear conexiones desde el nodo central
+    const edges = new vis.DataSet([
+        { from: 'central', to: 'autores' },
+        { from: 'central', to: 'obras' },
+        { from: 'central', to: 'festivales' }
+    ]);
+
+    // Configuración de la visualización
+    const options = {
+        nodes: {
+            font: {
+                size: 16
+            }
+        },
+        edges: {
+            width: 2,
+            color: {
+                color: '#E09900',
+                highlight: '#b30000'
+            }
+        },
+        physics: {
+            enabled: true,
+            barnesHut: {
+                gravitationalConstant: -2000,
+                centralGravity: 0.3,
+                springLength: 200
+            }
+        },
+        interaction: {
+            hover: true,
+            tooltipDelay: 200
+        }
+    };
+
+    // Actualizar el network con los datos iniciales
+    if (network) {
+        network.setData({ nodes, edges });
+        network.setOptions(options);
+        network.fit();
+    }
+}
+
+function initMap() {
+    map = L.map('map').setView([40.4165, -3.7026], 6);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Llama a invalidateSize para asegurarte de que el mapa se renderiza correctamente
+    setTimeout(() => {
+        map.invalidateSize();
+    }, 100);
+}
+
+function createNetworkData(obra) {
+    if (Array.isArray(obra)) {
+        obra = obra[0];
+    }
+
+    if (!obra || !obra['Autor/a']) {
+        console.warn('No se recibi una obra válida');
+        return {
+            nodes: new vis.DataSet(),
+            edges: new vis.DataSet()
+        };
+    }
+
+    const nodes = new vis.DataSet();
+    const edges = new vis.DataSet();
+
+    // Crear nodo del autor
+    const autorNode = {
+        id: 'autor_' + obra['Autor/a'],
+        label: obra['Autor/a'].toString().trim(),
+        shape: 'dot',
+        size: 30,
+        color: {
+            background: '#FB7E81',
+            border: '#d45659'
+        },
+        font: {
+            size: 16,
+            bold: true
+        }
+    };
+    nodes.add(autorNode);
+
+    // Encontrar todas las obras del mismo autor
+    const obrasDelAutor = obras.filter(o => o['Autor/a'] === obra['Autor/a']);
+
+    // Crear nodos para cada obra y conectarlos al autor
+    obrasDelAutor.forEach(obraRelacionada => {
+        const obraNode = {
+            id: 'obra_' + obraRelacionada.id,
+            label: obraRelacionada.Obra,
+            shape: 'box',
+            size: 20,
+            color: {
+                background: '#E09900',
+                border: '#b30000'
+            },
+            title: `${obraRelacionada.Obra}\n${obraRelacionada['Fecha de estreno'] || 'Fecha desconocida'}`
+        };
+        
+        const edge = {
+            from: 'autor_' + obra['Autor/a'],
+            to: 'obra_' + obraRelacionada.id,
+            arrows: 'to'
+        };
+
+        nodes.add(obraNode);
+        edges.add(edge);
+    });
+
+    return { nodes, edges };
+}
+
+function actualizarMarcadores(obrasData) {
+    // Actualizar la variable global
+    obras = obrasData;
+
+    if (!map) {
+        console.error('El mapa no está inicializado');
+        return;
+    }
+
+    // Eliminar el grupo de marcadores anterior si existe
+    if (markerClusterGroup) {
+        map.removeLayer(markerClusterGroup);
+    }
+
+    markerClusterGroup = L.markerClusterGroup({
+        showCoverageOnHover: false,
+        spiderfyOnMaxZoom: true,
+        zoomToBoundsOnClick: true,
+        maxClusterRadius: 40
+    });
+
+    obras.forEach(obra => {
+        const lat = parseFloat(obra.lat);
+        const lon = parseFloat(obra.lon);
+
+        if (!isNaN(lat) && !isNaN(lon)) {
+            const marker = L.marker([lat, lon])
+                .bindPopup(`
+                    <div class="obra-popup">
+                        <strong>${obra.Obra}</strong><br>
+                        Autor/a: ${obra['Autor/a']}<br>
+                        Fecha: ${obra['Fecha de estreno']}<br>
+                        Lugar: ${obra['Lugar de estreno']}
+                        <br>
+                        <button class="ver-grafo" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(
+                            `${obra.Obra} ${obra['Autor/a']} ${obra['Fecha de estreno']} ${obra['Lugar de estreno']}`
+                        )}', '_blank')">
+                            Buscar en Google
+                        </button>
+                    </div>
+                `);
+
+            markerClusterGroup.addLayer(marker);
+        }
+    });
+
+    map.addLayer(markerClusterGroup);
+}
+
+// Agregar función para mostrar el nodo comodín
+function mostrarNodoComodin() {
+    const nodes = new vis.DataSet([{
+        id: 'tce',
+        label: 'TCE-SXXI',
+        shape: 'star',
+        size: 40,
+        color: {
+            background: '#E09900',
+            border: '#b30000'
+        },
+        font: {
+            size: 18,
+            bold: true
+        }
+    }]);
+    
+    network.setData({ nodes: nodes, edges: new vis.DataSet() });
+}
+
+// Modificar la función mostrarEnGrafo para incluir el estado de carga
+window.mostrarEnGrafo = function(obraId) {
+    console.log('Buscando obra con ID:', obraId);
+    
+    if (!obraId || !obras) {
+        console.warn('ID de obra no válido o no hay obras cargadas');
+        return;
+    }
+
+    const obra = obras.find(o => o.id === obraId);
+    console.log('Obra encontrada:', obra);
+
+    if (obra && network) {
+        // Mostrar estado de carga
+        const nodes = new vis.DataSet([{
+            id: 'loading',
+            label: 'Cargando...',
+            shape: 'dot',
+            size: 30,
+            color: {
+                background: '#E09900',
+                border: '#b30000'
+            },
+            font: { size: 16 }
+        }]);
+        network.setData({ nodes: nodes, edges: new vis.DataSet() });
+
+        // Asegurarse de que la sección de visualizaciones esté visible
+        const visualizationsSection = document.getElementById('visualizationsSection');
+        visualizationsSection.classList.remove('collapsed');
+        
+        // Actualizar la flecha del botón
+        const toggleVisualizationsBtn = document.getElementById('toggleVisualizationsBtn');
+        const arrow = toggleVisualizationsBtn.querySelector('.arrow');
+        arrow.style.transform = 'rotate(180deg)';
+
+        // Simular tiempo de carga
+        setTimeout(() => {
+            const data = createNetworkData(obra);
+            if (data.nodes.length === 0) {
+                console.warn('No se pudieron crear nodos para la obra');
+                mostrarNodoComodin();
+                return;
+            }
+
+            network.setData(data);
+            
+            network.fit({
+                nodes: ['obra_' + obra.id],
+                animation: {
+                    duration: 1000,
+                    easingFunction: 'easeInOutQuad'
+                }
+            });
+            
+            if (map) map.invalidateSize();
+            network.fit();
+        }, 800); // Tiempo de carga simulado
+    } else {
+        console.warn('No se encontró la obra o el network no está inicializado');
+    }
+}
+
+function initNetwork() {
+    const container = document.getElementById('network');
+    
+    // Crear nodos: central y estadísticas
+    const nodes = new vis.DataSet([
+        { 
+            id: 'central', 
+            label: 'TCE-SXXI',
+            shape: 'star',
+            size: 40,
+            color: {
+                background: '#E09900',
+                border: '#b30000'
+            }
+        },
+        { 
+            id: 'autores', 
+            label: 'Autores',
+            shape: 'icon',
+            icon: {
+                face: '"Font Awesome 5 Free"',
+                code: '\uf007',  // código del icono fa-user
+                size: 30,
+                color: '#E09900'
+            }
+        },
+        { 
+            id: 'obras', 
+            label: 'Obras',
+            shape: 'icon',
+            icon: {
+                face: '"Font Awesome 5 Free"',
+                code: '\uf02d',  // código del icono fa-book
+                size: 30,
+                color: '#E09900'
+            }
+        },
+        { 
+            id: 'festivales', 
+            label: 'Festivales',
+            shape: 'icon',
+            icon: {
+                face: '"Font Awesome 5 Free"',
+                code: '\uf133',  // código del icono fa-calendar-alt
+                size: 30,
+                color: '#E09900'
+            }
+        }
+    ]);
+
+    // Crear conexiones desde el nodo central
+    const edges = new vis.DataSet([
+        { from: 'central', to: 'autores' },
+        { from: 'central', to: 'obras' },
+        { from: 'central', to: 'festivales' }
+    ]);
+
+    // Configuración de la visualización
+    const options = {
+        nodes: {
+            font: {
+                size: 16
+            }
+        },
+        edges: {
+            width: 2,
+            color: {
+                color: '#E09900',
+                highlight: '#b30000'
+            }
+        },
+        physics: {
+            enabled: true,
+            barnesHut: {
+                gravitationalConstant: -2000,
+                centralGravity: 0.3,
+                springLength: 200
+            }
+        },
+        interaction: {
+            hover: true,
+            tooltipDelay: 200
+        }
+    };
+
+    // Crear el network
+    network = new vis.Network(container, { nodes, edges }, options);
+
+    // Agregar el evento de doble clic
+    network.on('doubleClick', function(params) {
+        if (params.nodes.length > 0) {
+            const nodeId = params.nodes[0];
+            console.log('Doble clic en el nodo:', nodeId);
+        }
+    });
+
+    // Manejar eventos de clic en los nodos
+    network.on('click', function(params) {
+        if (params.nodes.length > 0) {
+            const nodeId = params.nodes[0];
+            switch(nodeId) {
+                case 'autores':
+                    // No hacer nada cuando se hace clic en 'autores'
+                    break;
+                case 'obras':
+                    showWorks();
+                    break;
+                case 'festivales':
+                    showFestivals();
+                    break;
+            }
+        }
+    });
+
+    // Ajustar la vista para mostrar todos los nodos
+    network.fit();
+}
+
+// Funciones para manejar los clics en los nodos
+function showAuthors() {
+    console.log('Iniciando showAuthors');
+    
+    // Asegurarse de que el visualizationsSection esté visible
+    const visualizationsSection = document.getElementById('visualizationsSection');
+    if (visualizationsSection.classList.contains('collapsed')) {
+        toggleVisualizations();
+    }
+    
+    // Verificar que network existe y está inicializado
+    if (typeof network !== 'undefined' && network) {
+        console.log('Network encontrado, manteniendo vista actual');
+        // No hacer nada cuando se hace clic en el nodo 'Autor'
+        return; // Simplemente retornamos sin hacer cambios
+    } else {
+        console.error('Network no está definido');
+    }
+}
+
+// Implementar funciones similares para obras y festivales
+function showWorks() {
+    console.log('Mostrando obras');
+    // Implementar lógica similar para obras
+}
+
+function showFestivals() {
+    console.log('Mostrando festivales');
+    // Implementar lógica similar para festivales
+}
+
+// Modificar la función actualizarVisualizaciones para que solo actualice el mapa
+function actualizarVisualizaciones(obras) {
+    actualizarMarcadores(obras);
+    // Eliminar la actualización automática del grafo
+    // if (network) {
+    //     const data = createNetworkData(obras);
+    //     network.setData(data);
+    // }
+}
+
+// Agregar esta nueva función para actualizar los contadores
+function actualizarContadores(obrasData) {
+    const autoresUnicos = new Set(obrasData.map(obra => obra['Autor/a'])).size;
+    const obrasTotal = obrasData.length;
+    const festivalesUnicos = new Set(
+        obrasData
+            .map(obra => obra['Festivales'])
+            .filter(festival => festival) // Eliminar valores vacíos
+            .flatMap(festival => festival.split(',').map(f => f.trim()))
+    ).size;
+
+    document.getElementById('count-autores').textContent = autoresUnicos;
+    document.getElementById('count-obras').textContent = obrasTotal;
+    document.getElementById('count-festivales').textContent = festivalesUnicos;
+}
+
+// Definir la función globalmente antes de cualquier otro código JavaScript
+// window.toggleVisualizations = function() {
+//     console.log('Función toggleVisualizations llamada'); // Debug
+//     
+//     const visualizationsSection = document.getElementById('visualizationsSection');
+//     const toggleBtn = document.getElementById('toggleVisualizationsBtn');
+//     const arrow = toggleBtn.querySelector('.arrow');
+//     
+//     console.log('Estado actual:', visualizationsSection.classList.contains('collapsed')); // Debug
+//     
+//     visualizationsSection.classList.toggle('collapsed');
+//     
+//     // Rotar la flecha
+//     arrow.style.transform = visualizationsSection.classList.contains('collapsed') 
+//         ? 'rotate(0deg)' 
+//         : 'rotate(180deg)';
+//     
+//     // Si las visualizaciones están visibles, actualizar el mapa
+//     if (!visualizationsSection.classList.contains('collapsed')) {
+//         if (typeof map !== 'undefined' && map) {
+//             map.invalidateSize();
+//         }
+//     }
+// };
+
+// Definir las funciones en el scope global (window)
+window.showAuthors = function() {
+    console.log('Iniciando showAuthors');
+    
+    // Asegurarse de que el visualizationsSection esté visible
+    const visualizationsSection = document.getElementById('visualizationsSection');
+    if (visualizationsSection.classList.contains('collapsed')) {
+        toggleVisualizations();
+    }
+    
+    // Verificar que network existe y está inicializado
+    if (typeof network !== 'undefined' && network) {
+        console.log('Network encontrado, actualizando...');
+        updateNetworkWithAuthors();
+    } else {
+        console.error('Network no está definido');
+    }
+};
+
+window.showWorks = function() {
+    console.log('Mostrar obras en el gráfico de nodos');
+    const visualizationsSection = document.getElementById('visualizationsSection');
+    if (visualizationsSection.classList.contains('collapsed')) {
+        toggleVisualizations();
+    }
+    
+    if (typeof network !== 'undefined' && network) {
+        updateNetworkWithWorks();
+    }
+};
+
+window.showFestivals = function() {
+    console.log('Mostrar festivales en el gráfico de nodos');
+    const visualizationsSection = document.getElementById('visualizationsSection');
+    if (visualizationsSection.classList.contains('collapsed')) {
+        toggleVisualizations();
+    }
+    
+    if (typeof network !== 'undefined' && network) {
+        updateNetworkWithFestivals();
+    }
+};
+
+// Funciones auxiliares para actualizar el network
+function updateNetworkWithAuthors() {
+    console.log('Actualizando red con autores');
+    
+    // Depurar los datos disponibles
+    console.log('Datos originales:', obrasOriginales);
+    
+    // Crear un conjunto único de autores
+    const autoresUnicos = [...new Set(obrasOriginales.map(obra => obra.autor))];
+    console.log('Autores únicos:', autoresUnicos);
+    
+    // Crear nodos para cada autor
+    const nodes = new vis.DataSet(
+        autoresUnicos.map((autor, index) => ({
+            id: index,
+            label: autor,
+            group: 'author',
+            shape: 'dot',
+            size: 20,
+            color: {
+                background: '#E09900',
+                border: '#b30000',
+                highlight: {
+                    background: '#b30000',
+                    border: '#E09900'
+                }
+            }
+        }))
+    );
+    
+    // Crear edges (conexiones) si quieres mostrar relaciones entre autores
+    const edges = new vis.DataSet([]);
+    
+    // Opciones de visualización
+    const options = {
+        nodes: {
+            font: {
+                size: 16
+            }
+        },
+        physics: {
+            stabilization: true,
+            barnesHut: {
+                gravitationalConstant: -80000,
+                springConstant: 0.001,
+                springLength: 200
+            }
+        }
+    };
+    
+    // Actualizar el network con los nuevos datos
+    try {
+        console.log('Actualizando network con:', {
+            nodos: nodes.length,
+            conexiones: edges.length
+        });
+        
+        network.setData({
+            nodes: nodes,
+            edges: edges
+        });
+        
+        network.setOptions(options);
+        
+        // Fit para mostrar todos los nodos
+        network.fit();
+        
+        console.log('Network actualizado exitosamente');
+    } catch (error) {
+        console.error('Error al actualizar el network:', error);
+    }
+}
+
+function updateNetworkWithWorks() {
+    console.log('Actualizando red con obras');
+    // Aquí va la lógica para mostrar solo las obras
+}
+
+function updateNetworkWithFestivals() {
+    console.log('Actualizando red con festivales');
+    // Aquí va la lógica para mostrar solo los festivales
+}
+
+// Función auxiliar para contar ocurrencias
+function contarOcurrencias(array, campo) {
+    return array.reduce((acc, item) => {
+        const valor = item[campo];
+        if (valor) {
+            // Si el campo es 'Festivales', dividir por comas y contar cada festival
+            if (campo === 'Festivales' && valor.includes(',')) {
+                valor.split(',').forEach(festival => {
+                    const festivalTrim = festival.trim();
+                    acc[festivalTrim] = (acc[festivalTrim] || 0) + 1;
+                });
+            } else {
+                acc[valor] = (acc[valor] || 0) + 1;
+            }
+        }
+        return acc;
+    }, {});
+}
+
+// Función para escapar caracteres especiales en HTML
+function escapeHTML(str) {
+    if (!str) return '';
+    return str
+        .toString()
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function actualizarListasUnicas(obras) {
+    // Obtener los valores de búsqueda actuales
+    const autorBusqueda = document.getElementById('busqueda-autor').value.toLowerCase();
+    const obraBusqueda = document.getElementById('busqueda-obra').value.toLowerCase();
+    const direccionBusqueda = document.getElementById('busqueda-direccion').value.toLowerCase();
+    const companiaBusqueda = document.getElementById('busqueda-compania').value.toLowerCase();
+    const festivalesBusqueda = document.getElementById('busqueda-festivales').value.toLowerCase();
+    const lugarBusqueda = document.getElementById('busqueda-lugar').value.toLowerCase();
+
+    // Función para normalizar texto (eliminar tildes y convertir a minúsculas)
+    const normalizarTexto = (texto) => {
+        if (!texto) return '';
+        return texto.toString()
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
+    };
+
+    // Función de coincidencia mejorada
+    const coincide = (valor, busqueda) => {
+        if (!busqueda) return true;
+        if (!valor) return false;
+        return normalizarTexto(valor).includes(normalizarTexto(busqueda));
+    };
+
+    // Filtrar las obras según todos los criterios de búsqueda
+    const obrasFiltradas = obras.filter(obra => {
+        return coincide(obra['Autor/a'], autorBusqueda) &&
+               coincide(obra['Obra'], obraBusqueda) &&
+               coincide(obra['Dirección'], direccionBusqueda) &&
+               coincide(obra['Compañía'], companiaBusqueda) &&
+               coincide(obra['Festivales'], festivalesBusqueda) &&
+               coincide(obra['Lugar de estreno'], lugarBusqueda);
+    });
+
+    // Contar ocurrencias usando las obras ya filtradas
+    const autoresCount = contarOcurrencias(obrasFiltradas, 'Autor/a');
+    const obrasCount = contarOcurrencias(obrasFiltradas, 'Obra');
+    const direccionesCount = contarOcurrencias(obrasFiltradas, 'Dirección');
+    const companiasCount = contarOcurrencias(obrasFiltradas, 'Compañía');
+    const festivalesCount = contarOcurrencias(obrasFiltradas, 'Festivales');
+    const lugaresCount = contarOcurrencias(obrasFiltradas, 'Lugar de estreno');
+
+    // Función para crear el HTML de cada lista
+    const crearListaHTML = (ocurrencias, tipo) => {
+        return Object.entries(ocurrencias)
+            // Modificar el ordenamiento por defecto aquí
+            .sort(([a, countA], [b, countB]) => {
+                // Primero ordenar por contador (descendente)
+                if (countB !== countA) {
+                    return countB - countA;
+                }
+                // Si los contadores son iguales, ordenar alfabéticamente
+                return a.localeCompare(b, 'es', {sensitivity: 'base'});
+            })
+            .map(([valor, cantidad]) => {
+                const valorEscapado = escapeHTML(valor);
+                return `
+                    <div class="lista-item" 
+                         data-tipo="${escapeHTML(tipo)}" 
+                         data-valor="${valorEscapado}" 
+                         onclick="mostrarDatosRelacionados('${tipo}', '${valorEscapado}')">
+                        <span class="item-nombre">${valorEscapado}</span>
+                        <span class="item-contador">${cantidad}</span>
+                    </div>
+                `;
+            }).join('');
+    };
+
+    // Actualizar el contenido de cada lista
+    document.getElementById('lista-autores').innerHTML = crearListaHTML(autoresCount, 'Autor/a');
+    document.getElementById('lista-obras').innerHTML = crearListaHTML(obrasCount, 'Obra');
+    document.getElementById('lista-direcciones').innerHTML = crearListaHTML(direccionesCount, 'Dirección');
+    document.getElementById('lista-companias').innerHTML = crearListaHTML(companiasCount, 'Compañía');
+    document.getElementById('lista-festivales').innerHTML = crearListaHTML(festivalesCount, 'Festivales');
+    document.getElementById('lista-lugares').innerHTML = crearListaHTML(lugaresCount, 'Lugar de estreno');
+}
+
+function typewriterEffect(element, text, baseSpeed = 50) {
+    let i = 0;
+    element.value = ''; // Limpiar el campo primero
+    
+    function type() {
+        if (i < text.length) {
+            // Reducir la velocidad a la mitad cuando el texto supere los 20 caracteres
+            const speed = text.length > 20 ? baseSpeed / 2 : baseSpeed;
+            
+            element.value += text.charAt(i);
+            i++;
+            setTimeout(type, speed);
+        } else {
+            // Cuando termine de escribir, disparar el evento input
+            element.dispatchEvent(new Event('input'));
+        }
+    }
+    
+    type();
+}
+
+function mostrarDatosRelacionados(tipo, valor) {
+    // Mapeo de tipos a IDs de los campos de búsqueda
+    const camposBusqueda = {
+        'Autor/a': 'busqueda-autor',
+        'Obra': 'busqueda-obra',
+        'Dirección': 'busqueda-direccion',
+        'Compañía': 'busqueda-compania',
+        'Festivales': 'busqueda-festivales',
+        'Lugar de estreno': 'busqueda-lugar'
+    };
+
+    // Rellenar el campo de búsqueda correspondiente con efecto typewriter
+    const campoId = camposBusqueda[tipo];
+    if (campoId) {
+        const campo = document.getElementById(campoId);
+        if (campo) {
+            typewriterEffect(campo, valor, 50); // 50ms entre cada carácter
+        }
+    }
+
+    console.log(`Elemento seleccionado - ${tipo}: ${valor}`);
+    
+    const obrasRelacionadas = obrasOriginales.filter(obra => {
+        if (tipo === 'Festivales') {
+            const festivales = obra[tipo]?.split(',').map(f => f.trim()) || [];
+            return festivales.includes(valor);
+        }
+        return obra[tipo] === valor;
+    });
+
+    // Crear el objeto JSON con las estadísticas
+    const datosJSON = {
+        tipo: tipo,
+        valor: valor,
+        total_obras: obrasRelacionadas.length,
+        estadisticas: {
+            num_autores: [...new Set(obrasRelacionadas.map(obra => obra['Autor/a']).filter(Boolean))].length,
+            num_obras: [...new Set(obrasRelacionadas.map(obra => obra['Obra']).filter(Boolean))].length,
+            num_direcciones: [...new Set(obrasRelacionadas.map(obra => obra['Dirección']).filter(Boolean))].length,
+            num_companias: [...new Set(obrasRelacionadas.map(obra => obra['Compañía']).filter(Boolean))].length,
+            num_festivales: [...new Set(obrasRelacionadas.flatMap(obra => 
+                obra['Festivales'] ? obra['Festivales'].split(',').map(f => f.trim()) : []
+            ))].length,
+            num_lugares: [...new Set(obrasRelacionadas.map(obra => obra['Lugar de estreno']).filter(Boolean))].length
+        }
+    };
+
+    // Crear visualización de red simplificada
+    const nodes = new vis.DataSet();
+    const edges = new vis.DataSet();
+
+    // Agregar nodo central
+    nodes.add({
+        id: 'central',
+        label: valor,
+        shape: 'star',
+        size: 45,
+        color: {
+            background: '#E09900',
+            border: '#b30000'
+        },
+        font: { size: 16, bold: true }
+    });
+
+    // Agregar nodos de estadísticas
+    const estadisticas = [
+        { key: 'autores', label: 'Autores', icon: '\uf007' },
+        { key: 'obras', label: 'Obras', icon: '\uf02d' },
+        { key: 'direcciones', label: 'Direcciones', icon: '\uf3c5' },
+        { key: 'companias', label: 'Compañías', icon: '\uf0c0' },
+        { key: 'festivales', label: 'Festivales', icon: '\uf133' },
+        { key: 'lugares', label: 'Lugares', icon: '\uf3c5' }
+    ];
+
+    estadisticas.forEach((stat, index) => {
+        const cantidad = datosJSON.estadisticas[`num_${stat.key}`];
+        if (cantidad > 0) {
+            // Obtener la lista detallada según el tipo de estadística
+            const listaDetallada = obtenerListaDetallada(obrasRelacionadas, stat.key);
+            
+            // Crear el contenido del tooltip sin las etiquetas de estilo
+            nodes.add({
+                id: stat.key,
+                label: `${stat.label}\n(${cantidad})`,
+                shape: 'icon',
+                icon: {
+                    face: '"Font Awesome 5 Free"',
+                    code: stat.icon,
+                    size: 30,
+                    color: '#E09900'
+                },
+                font: { size: 14 },
+                tooltipContent: { // Usar una propiedad personalizada para el contenido
+                    title: stat.label,
+                    count: cantidad,
+                    items: listaDetallada
+                }
+            });
+
+            edges.add({
+                from: 'central',
+                to: stat.key,
+                length: 200,
+                color: { color: '#E09900', highlight: '#b30000' }
+            });
+        }
+    });
+
+    // Modificar las opciones para mantener los mismos colores en hover
+    const options = {
+        nodes: {
+            font: { size: 16 },
+            color: {
+                hover: {
+                    border: '#E09900',      // Mismo color que el borde normal
+                    background: '#E09900'    // Mismo color que el fondo normal
+                }
+            }
+        },
+        edges: {
+            width: 2,
+            smooth: { type: 'continuous' },
+            color: {
+                hover: '#E09900'    // Mismo color que el borde normal
+            }
+        },
+        physics: {
+            stabilization: true,
+            barnesHut: {
+                gravitationalConstant: -5000,
+                centralGravity: 0.5,
+                springLength: 150,
+                springConstant: 0.05
+            }
+        },
+        interaction: {
+            hover: false,
+            hoverConnectedEdges: false,
+            tooltipDelay: 0,
+            selectable: true,
+            selectConnectedEdges: false
+        }
+    };
+
+    // Actualizar el network
+    if (network) {
+        network.setData({ nodes, edges });
+        network.setOptions(options);
+
+        // Modificar el evento de clic para usar la nueva propiedad tooltipContent
+        network.on('click', function(params) {
+            removeCustomTooltip();
+
+            if (params.nodes.length > 0) {
+                const nodeId = params.nodes[0];
+                const node = nodes.get(nodeId);
+                if (node && node.tooltipContent) {
+                    const position = network.getPositions([nodeId])[nodeId];
+                    const canvasPosition = network.canvasToDOM(position);
+                    
+                    // Crear el contenido HTML del tooltip usando tooltipContent
+                    const tooltipHTML = `
+                        <div class="tooltip-content">
+                            <strong>${node.tooltipContent.title} (${node.tooltipContent.count})</strong>
+                            <ul>
+                                ${node.tooltipContent.items.map(item => `<li>${item}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `;
+                    
+                    showCustomTooltip(tooltipHTML, canvasPosition.x, canvasPosition.y);
+                }
+            }
+        });
+
+        // Agregar evento de clic al documento para cerrar el tooltip
+        document.addEventListener('click', function(event) {
+            const tooltip = document.querySelector('.custom-tooltip');
+            const networkContainer = document.getElementById('network');
+            
+            // Si el clic fue fuera del network y del tooltip, cerrar el tooltip
+            if (!networkContainer.contains(event.target) && 
+                (!tooltip || !tooltip.contains(event.target))) {
+                removeCustomTooltip();
+            }
+        });
+
+        setTimeout(() => {
+            network.fit({
+                animation: {
+                    duration: 1000,
+                    easingFunction: 'easeInOutQuad'
+                }
+            });
+        }, 500);
+    }
+
+    return datosJSON;
+}
+
+// Función para mostrar el tooltip personalizado
+function showCustomTooltip(content, x, y) {
+    removeCustomTooltip(); // Remover tooltip existente
+
+    const tooltip = document.createElement('div');
+    tooltip.className = 'custom-tooltip';
+    tooltip.innerHTML = content;
+
+    // Obtener el contenedor del network y su posición
+    const networkContainer = document.getElementById('network');
+    const networkRect = networkContainer.getBoundingClientRect();
+
+    // Agregar el tooltip al DOM
+    document.body.appendChild(tooltip);
+    
+    // Posicionar el tooltip en la esquina superior izquierda del network
+    tooltip.style.left = `${networkRect.left + 10}px`; // 10px de padding
+    tooltip.style.top = `${networkRect.top + 10}px`; // 10px de padding
+}
+
+// Función para remover el tooltip
+function removeCustomTooltip() {
+    const existingTooltip = document.querySelector('.custom-tooltip');
+    if (existingTooltip) {
+        existingTooltip.remove();
+    }
+}
+
+// Función para manejar todos los eventos de búsqueda
+function setupSearchListeners() {
+    // Array con todos los campos de búsqueda
+    const searchFields = [
+        { id: 'busqueda-autor', field: 'Autor/a' },
+        { id: 'busqueda-obra', field: 'Obra' },
+        { id: 'busqueda-direccion', field: 'Dirección' },
+        { id: 'busqueda-compania', field: 'Compañía' },
+        { id: 'busqueda-festivales', field: 'Festivales' },
+        { id: 'busqueda-lugar', field: 'Lugar de estreno' }
+    ];
+
+    // Configurar listener para cada campo
+    searchFields.forEach(({ id, field }) => {
+        const element = document.getElementById(id);
+        if (!element) {
+            console.error(`Elemento de búsqueda no encontrado: ${id}`);
+            return;
+        }
+
+        // Agregar eventos input y change
+        ['input', 'change'].forEach(eventType => {
+            element.addEventListener(eventType, debounce(() => {
+                console.log(`Búsqueda en ${field}: ${element.value}`);
+                filtrarObras();
+            }, 300));
+        });
+    });
+
+    // Configurar listener para fechas
+    ['fechaInicio', 'fechaFin'].forEach(id => {
+        const element = document.getElementById(id);
+        if (!element) {
+            console.error(`Elemento de fecha no encontrado: ${id}`);
+            return;
+        }
+
+        element.addEventListener('change', () => {
+            console.log(`Fecha ${id} cambiada: ${element.value}`);
+            filtrarObras();
+        });
+    });
+
+    // Configurar listener para búsqueda exacta
+    const busquedaExacta = document.getElementById('busquedaExacta');
+    if (busquedaExacta) {
+        busquedaExacta.addEventListener('change', () => {
+            console.log(`Búsqueda exacta: ${busquedaExacta.checked}`);
+            filtrarObras();
+        });
+    }
+
+    // Configurar listener para reset
+    const resetBtn = document.getElementById('resetFiltros');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            console.log('Reseteando filtros');
+            resetearFiltros();
+        });
+    }
+}
+
+// Función debounce para optimizar las búsquedas
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// Al inicio del archivo, después de las declaraciones de variables globales
+async function inicializarAplicacion() {
+    try {
+        // Cargar los datos
+        obrasOriginales = await obtenerObras();
+        
+        // Inicializar visualizaciones
+        initMap();
+        initNetwork();
+        
+        // Configurar los listeners de búsqueda
+        setupSearchListeners();
+        
+        // Llenar la tabla inicial
+        llenarTabla(obrasOriginales);
+        
+        // Actualizar contadores
+        actualizarContadores(obrasOriginales);
+        
+        // Actualizar listas únicas
+        actualizarListasUnicas(obrasOriginales);
+        
+        // Actualizar visualizaciones
+        actualizarVisualizaciones(obrasOriginales);
+        
+        console.log('Aplicación inicializada correctamente');
+    } catch (error) {
+        console.error('Error al inicializar la aplicación:', error);
+    }
+}
+
+// Agregar el evento DOMContentLoaded
+document.addEventListener('DOMContentLoaded', () => {
+    inicializarAplicacion();
+});
+
+function ordenarLista(tipo, criterio) {
+    console.log(`Ordenando lista ${tipo} por ${criterio}`);
+    
+    // Obtener el contenedor de la lista
+    const listaContainer = document.getElementById(`lista-${tipo}`);
+    if (!listaContainer) {
+        console.error(`Contenedor no encontrado: lista-${tipo}`);
+        return;
+    }
+
+    // Obtener todos los items de la lista
+    const items = Array.from(listaContainer.getElementsByClassName('lista-item'));
+    
+    items.sort((a, b) => {
+        const nombreA = a.querySelector('.item-nombre').textContent.trim();
+        const nombreB = b.querySelector('.item-nombre').textContent.trim();
+        const contadorA = parseInt(a.querySelector('.item-contador').textContent);
+        const contadorB = parseInt(b.querySelector('.item-contador').textContent);
+
+        if (criterio === 'alfabetico') {
+            return nombreA.localeCompare(nombreB, 'es', { sensitivity: 'base' });
+        } else if (criterio === 'contador') {
+            // Ordenar primero por contador (descendente) y luego alfabéticamente si son iguales
+            if (contadorB !== contadorA) {
+                return contadorB - contadorA;
+            }
+            return nombreA.localeCompare(nombreB, 'es', { sensitivity: 'base' });
+        }
+    });
+
+    // Limpiar y volver a agregar los elementos ordenados
+    listaContainer.innerHTML = '';
+    items.forEach(item => listaContainer.appendChild(item));
+}
+
+function clearInput(inputId) {
+    const input = document.getElementById(inputId);
+    if (input) {
+        input.value = '';
+        input.focus();
+        // Disparar el evento input para actualizar los filtros
+        input.dispatchEvent(new Event('input'));
+    }
+}
+
+// Función para mostrar detalles de la obra
+function mostrarDetallesObra(obra) {
+    console.log('Mostrando detalles de:', obra);
+    console.log('Lat:', obra.lat, 'Lon:', obra.lon);
+    
+    // Centrar el mapa en la ubicación de la obra
+    if (!map) {
+        console.error('El mapa no está inicializado');
+        return;
+    }
+    
+    const lat = parseFloat(obra.lat);
+    const lon = parseFloat(obra.lon);
+    
+    console.log('Lat parseado:', lat, 'Lon parseado:', lon);
+    
+    if (!isNaN(lat) && !isNaN(lon) && lat !== 0 && lon !== 0) {
+        console.log('Centrando mapa en:', lat, lon);
+        map.setView([lat, lon], 15);
+        
+        // Opcional: Abrir un popup en el mapa con información de la obra
+        L.popup()
+            .setLatLng([lat, lon])
+            .setContent(`
+                <strong>${obra.Obra}</strong><br>
+                Autor: ${obra['Autor/a']}<br>
+                Fecha: ${obra['Fecha de estreno']}<br>
+                Lugar: ${obra['Lugar de estreno']}
+            `)
+            .openOn(map);
+    } else {
+        console.warn('Coordenadas no válidas para esta obra');
+        alert('Esta obra no tiene coordenadas válidas');
+    }
+}
+
+// Agregar esta nueva función auxiliar
+function obtenerListaDetallada(obras, tipo) {
+    switch (tipo) {
+        case 'autores':
+            return [...new Set(obras.map(obra => obra['Autor/a']).filter(Boolean))];
+        case 'obras':
+            return [...new Set(obras.map(obra => obra['Obra']).filter(Boolean))];
+        case 'direcciones':
+            return [...new Set(obras.map(obra => obra['Dirección']).filter(Boolean))];
+        case 'companias':
+            return [...new Set(obras.map(obra => obra['Compañía']).filter(Boolean))];
+        case 'festivales':
+            return [...new Set(obras.flatMap(obra => 
+                obra['Festivales'] ? obra['Festivales'].split(',').map(f => f.trim()) : []
+            ))];
+        case 'lugares':
+            return [...new Set(obras.map(obra => obra['Lugar de estreno']).filter(Boolean))];
+        default:
+            return [];
+    }
+}
+    </script>
+</body>
+</html>
