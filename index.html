@@ -11,15 +11,14 @@
     <meta property="og:url" content="URL_DE_TU_SITIO">
     
     <!-- Favicon -->
-    <!-- <link rel="icon" type="image/png" href="PruebaTCE5.png"> -->
+    <link rel="icon" type="image/png" href="https://teatrero.com/wp-content/uploads/2026/02/TCE-logo-980x980.png">
+    <link rel="apple-touch-icon" href="https://teatrero.com/wp-content/uploads/2026/02/TCE-logo-980x980.png">
     <title>Buscador de obras del TCE SXXI</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            overflow: hidden;
-            height: 100vh;
             background-color: #dfdfdf7e;
         }
     
@@ -169,28 +168,451 @@
     /* Estilo para el contenedor de visualizaciones */
     .visualizations-container {
         display: flex;
-        gap: 20px;
-        height: 400px;
+        flex-direction: column;
+        gap: 10px;
     }
 
-    #map-container, #network-container {
-        flex: 1;
+    #map-container {
+        height: 500px;
         padding: 15px;
         background-color: #fff;
         border-radius: 5px;
         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        position: relative;
     }
 
-    #map, #network {
-        height: 400px;
+    #network-container {
+        height: 300px;
+        padding: 15px;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        transition: all 0.3s ease-in-out;
+        overflow: hidden;
+    }
+
+    #network-container.collapsed {
+        height: 0;
+        padding: 0;
+        margin: 0;
+        opacity: 0;
+    }
+
+    #map {
+        height: 100%;
         width: 100%;
         border-radius: 5px;
     }
 
+    #network {
+        height: 100%;
+        width: 100%;
+        border-radius: 5px;
+    }
+
+    .network-toggle-btn {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        z-index: 500;
+        padding: 10px 15px;
+        background-color: #E09900;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9em;
+    }
+
+    .network-toggle-btn:hover {
+        background-color: #b30000;
+    }
+
+    .network-toggle-btn i {
+        font-size: 1.1em;
+    }
+
+    /* Botón flotante de reset en la parte superior */
+    .reset-float-btn {
+        position: fixed;
+        top: 100px;
+        right: 30px;
+        z-index: 900;
+        padding: 12px 20px;
+        background-color: #f44336;
+        color: white;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1em;
+        font-weight: bold;
+        opacity: 0;
+        transform: translateY(-20px);
+        pointer-events: none;
+        transition: all 0.3s ease;
+    }
+
+    .reset-float-btn.visible {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+    }
+
+    .reset-float-btn:hover {
+        background-color: #d32f2f;
+        transform: scale(1.05);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+    }
+
+    .reset-float-btn i {
+        font-size: 1.2em;
+    }
+
+    /* Cartel informativo en el mapa */
+    .map-info-overlay {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(255, 255, 255, 0.95);
+        border: 2px solid #E09900;
+        border-radius: 10px;
+        padding: 30px;
+        max-width: 400px;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        z-index: 400;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    .map-info-overlay.visible {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .map-info-overlay h3 {
+        color: #E09900;
+        margin-top: 0;
+        margin-bottom: 15px;
+        font-size: 1.3em;
+    }
+
+    .map-info-overlay p {
+        color: #333;
+        line-height: 1.6;
+        margin: 10px 0;
+    }
+
+    .map-info-overlay .contact-info {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 2px solid #E09900;
+        font-size: 0.9em;
+    }
+
+    .map-info-overlay .contact-info strong {
+        color: #E09900;
+    }
+
+    .map-info-overlay a {
+        color: #1a73e8;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .map-info-overlay a:hover {
+        text-decoration: underline;
+    }
+
+    /* Botón para exportar JSON-LD */
+    .json-ld-btn {
+        position: fixed;
+        top: 100px;
+        right: 200px;
+        z-index: 900;
+        padding: 12px 20px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1em;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+
+    .json-ld-btn:hover {
+        background-color: #45a049;
+        transform: scale(1.05);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+    }
+
+    .json-ld-btn i {
+        font-size: 1.2em;
+    }
+
+    /* Modal para JSON-LD */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        z-index: 3000;
+        justify-content: center;
+        align-items: center;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .modal-overlay.active {
+        display: flex;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .modal-content {
+        background-color: white;
+        border-radius: 10px;
+        padding: 30px;
+        max-width: 800px;
+        max-height: 80vh;
+        width: 90%;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        position: relative;
+        animation: slideDown 0.3s ease;
+        display: flex;
+        flex-direction: column;
+    }
+
+    @keyframes slideDown {
+        from { 
+            transform: translateY(-50px);
+            opacity: 0;
+        }
+        to { 
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #E09900;
+    }
+
+    .modal-header h2 {
+        margin: 0;
+        color: #E09900;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: 2em;
+        color: #666;
+        cursor: pointer;
+        padding: 0;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.2s;
+    }
+
+    .modal-close:hover {
+        background-color: #f44336;
+        color: white;
+    }
+
+    .modal-body {
+        flex: 1;
+        overflow-y: auto;
+        margin-bottom: 20px;
+    }
+
+    .json-ld-container {
+        background-color: #f5f5f5;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 15px;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9em;
+        overflow-x: auto;
+        max-height: 50vh;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+
+    /* Sección de resumen antes del JSON */
+    .summary-section {
+        margin-bottom: 20px;
+        padding: 15px;
+        background-color: #fff9e6;
+        border-left: 4px solid #E09900;
+        border-radius: 5px;
+    }
+
+    .summary-section h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        color: #E09900;
+        font-size: 1.1em;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .filter-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .filter-tag {
+        background-color: #E09900;
+        color: white;
+        padding: 5px 12px;
+        border-radius: 15px;
+        font-size: 0.85em;
+        font-weight: bold;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .filter-tag i {
+        font-size: 0.9em;
+    }
+
+    .generated-phrases {
+        margin-top: 15px;
+        padding: 15px;
+        background-color: #f0f7ff;
+        border-left: 4px solid #2196F3;
+        border-radius: 5px;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .generated-phrases h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        color: #2196F3;
+        font-size: 1.1em;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .phrase-item {
+        margin: 8px 0;
+        padding: 8px 0;
+        border-bottom: 1px solid #e0e0e0;
+        line-height: 1.6;
+        color: #333;
+    }
+
+    .phrase-item:last-child {
+        border-bottom: none;
+    }
+
+    .phrase-highlight {
+        font-weight: bold;
+        color: #E09900;
+    }
+
+    .json-section {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 2px solid #ddd;
+    }
+
+    .json-section h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        color: #666;
+        font-size: 1.1em;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .modal-footer {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        padding-top: 15px;
+        border-top: 1px solid #ddd;
+    }
+
+    .btn-copy, .btn-download {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1em;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+    }
+
+    .btn-copy {
+        background-color: #2196F3;
+        color: white;
+    }
+
+    .btn-copy:hover {
+        background-color: #0b7dda;
+    }
+
+    .btn-copy.copied {
+        background-color: #4CAF50;
+    }
+
+    .btn-download {
+        background-color: #E09900;
+        color: white;
+    }
+
+    .btn-download:hover {
+        background-color: #b30000;
+    }
+
     /* Estilos para hacer la tabla scrolleable */
     .table-container {
-        flex: 1;
-        min-height: 0;
+        min-height: 400px;
+        max-height: 600px;
         overflow: auto;
         background-color: white;
         border-radius: 5px;
@@ -206,7 +628,7 @@
     #tablaObras thead {
         position: sticky;
         top: 0;
-        z-index: 1;
+        z-index: 10;
     }
 
     #tablaObras thead th {
@@ -237,7 +659,7 @@
     .main-content {
         display: flex;
         flex-direction: column;
-        height: 100vh;
+        min-height: 100vh;
         padding: 10px;
         box-sizing: border-box;
         gap: 10px;
@@ -248,7 +670,6 @@
         flex-direction: column;
         gap: 10px;
         flex: 1;
-        overflow: hidden;
     }
 
     /* Estilos para el botón de toggle */
@@ -422,6 +843,20 @@
         width: auto;
     }
 
+    .title-logo {
+        height: 50px;
+        width: auto;
+        object-fit: contain;
+    }
+
+    .title-logo-left {
+        margin-right: 20px;
+    }
+
+    .title-logo-right {
+        margin-left: 20px;
+    }
+
     .title-bar h1 {
         margin: 0;
         color: white;
@@ -543,15 +978,14 @@
         overflow-y: auto;
         display: flex;
         flex-direction: column;
+        z-index: 100;
     }
 
     .main-content {
-        margin-left: 270px;
+        margin-left: 320px;
         padding: 10px;
         padding-top: 80px;
-        height: 100vh;
         box-sizing: border-box;
-        overflow-y: auto;
     }
 
     /* Ajustes para los elementos del buscador en vertical */
@@ -634,11 +1068,6 @@
     .sidebar {
         width: 300px;
         padding: 20px;
-    }
-
-    /* Ajustar el margen del contenido principal */
-    .main-content {
-        margin-left: 320px;
     }
 
     /* Estilos para los items de las listas únicas */
@@ -864,7 +1293,7 @@
         max-width: 300px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         pointer-events: none;
-        z-index: 1000;
+        z-index: 2000;
     }
 
     .custom-tooltip {
@@ -879,7 +1308,7 @@
         max-height: 400px;
         overflow-y: auto;
         box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        z-index: 1000;
+        z-index: 2000;
         transition: opacity 0.2s ease;
         pointer-events: auto;
     }
@@ -1152,8 +1581,13 @@
         <div class="content-wrapper">
             <div class="title-bar">
                 <div class="title-content">
-                    <!-- <img src="PruebaTCE5.png" alt="Logo TCE" class="logo"> -->
+                    <img src="https://teatrero.com/wp-content/uploads/2026/02/TCE-logo-980x980.png" 
+                         alt="Logo TCE" 
+                         class="title-logo title-logo-left">
                     <h1>Teatro Clásico Español - Siglo XXI</h1>
+                    <img src="https://teatrero.com/wp-content/uploads/2022/12/logo-teatrero-record.jpeg" 
+                         alt="Logo Teatrero" 
+                         class="title-logo title-logo-right">
                 </div>
             </div>
 
@@ -1181,13 +1615,38 @@
                 </div>
             </div>
 
+            <!-- Botón flotante de reset -->
+            <button id="resetFloatBtn" class="reset-float-btn" onclick="resetearFiltros()">
+                <i class="fas fa-times-circle"></i>
+                <span>Limpiar Filtros</span>
+            </button>
+
+            <!-- Botón para exportar JSON-LD -->
+            <button class="json-ld-btn" onclick="abrirModalJsonLD()">
+                <i class="fas fa-code"></i>
+                <span>Exportar JSON-LD</span>
+            </button>
+
             <div id="visualizationsSection" class="visualizations-section">
                 <div class="visualizations-container">
-                    <div id="network-container">
-                        <div id="network"></div>
-                    </div>
                     <div id="map-container">
                         <div id="map"></div>
+                        <button class="network-toggle-btn" onclick="toggleNetworkPanel()">
+                            <i class="fas fa-project-diagram"></i>
+                            <span id="network-toggle-text">Mostrar Grafo</span>
+                        </button>
+                        <div id="mapInfoOverlay" class="map-info-overlay">
+                            <h3><i class="fas fa-map-marker-alt"></i> Sin coordenadas disponibles</h3>
+                            <p>Las obras filtradas no tienen datos de geolocalización.</p>
+                            <div class="contact-info">
+                                <p><strong>¿Quieres contribuir a mejorar esta aplicación?</strong></p>
+                                <p>Contacta con <strong>Iván Simó Sánchez</strong></p>
+                                <p><a href="mailto:isimo@ucm.es">isimo@ucm.es</a></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="network-container" class="collapsed">
+                        <div id="network"></div>
                     </div>
                 </div>
             </div>
@@ -1461,6 +1920,17 @@ function filtrarObras() {
         actualizarContadores(obrasFiltradas);
         actualizarListasUnicas(obrasFiltradas);
 
+        // Mostrar/ocultar botón flotante de reset según si hay filtros activos
+        const hayFiltrosActivos = filtros.some(f => f.valor) || fechaInicio || fechaFin || filtroTipo;
+        const resetFloatBtn = document.getElementById('resetFloatBtn');
+        if (resetFloatBtn) {
+            if (hayFiltrosActivos) {
+                resetFloatBtn.classList.add('visible');
+            } else {
+                resetFloatBtn.classList.remove('visible');
+            }
+        }
+
     } catch (error) {
         console.error('Error al filtrar obras:', error);
     }
@@ -1487,8 +1957,31 @@ function resetearFiltros() {
     // Resetear contadores
     actualizarContadores(obrasOriginales);
     
+    // Resetear las listas únicas
+    actualizarListasUnicas(obrasOriginales);
+    
+    // Resetear el mapa con todos los marcadores
+    actualizarMarcadores(obrasOriginales);
+    
     // Resetear el network a su estado inicial
     resetNetwork();
+    
+    // Ocultar el botón flotante de reset
+    const resetFloatBtn = document.getElementById('resetFloatBtn');
+    if (resetFloatBtn) {
+        resetFloatBtn.classList.remove('visible');
+    }
+    
+    // Ocultar el cartel informativo del mapa
+    const mapInfoOverlay = document.getElementById('mapInfoOverlay');
+    if (mapInfoOverlay) {
+        mapInfoOverlay.classList.remove('visible');
+    }
+    
+    // Ajustar el mapa a la vista inicial (España)
+    if (map) {
+        map.setView([40.4165, -3.7026], 6);
+    }
 }
 
 // Función para resetear el network a su estado inicial
@@ -1574,7 +2067,9 @@ function resetNetwork() {
         },
         interaction: {
             hover: true,
-            tooltipDelay: 200
+            tooltipDelay: 200,
+            zoomView: false,
+            dragView: false
         }
     };
 
@@ -1743,6 +2238,12 @@ window.mostrarEnGrafo = function(obraId) {
     console.log('Obra encontrada:', obra);
 
     if (obra && network) {
+        // Asegurarse de que el panel de network esté visible
+        const networkContainer = document.getElementById('network-container');
+        if (networkContainer.classList.contains('collapsed')) {
+            toggleNetworkPanel();
+        }
+
         // Mostrar estado de carga
         const nodes = new vis.DataSet([{
             id: 'loading',
@@ -1756,15 +2257,6 @@ window.mostrarEnGrafo = function(obraId) {
             font: { size: 16 }
         }]);
         network.setData({ nodes: nodes, edges: new vis.DataSet() });
-
-        // Asegurarse de que la sección de visualizaciones esté visible
-        const visualizationsSection = document.getElementById('visualizationsSection');
-        visualizationsSection.classList.remove('collapsed');
-        
-        // Actualizar la flecha del botón
-        const toggleVisualizationsBtn = document.getElementById('toggleVisualizationsBtn');
-        const arrow = toggleVisualizationsBtn.querySelector('.arrow');
-        arrow.style.transform = 'rotate(180deg)';
 
         // Simular tiempo de carga
         setTimeout(() => {
@@ -1874,7 +2366,9 @@ function initNetwork() {
         },
         interaction: {
             hover: true,
-            tooltipDelay: 200
+            tooltipDelay: 200,
+            zoomView: false,
+            dragView: false
         }
     };
 
@@ -1915,10 +2409,10 @@ function initNetwork() {
 function showAuthors() {
     console.log('Iniciando showAuthors');
     
-    // Asegurarse de que el visualizationsSection esté visible
-    const visualizationsSection = document.getElementById('visualizationsSection');
-    if (visualizationsSection.classList.contains('collapsed')) {
-        toggleVisualizations();
+    // Asegurarse de que el panel de network esté visible
+    const networkContainer = document.getElementById('network-container');
+    if (networkContainer.classList.contains('collapsed')) {
+        toggleNetworkPanel();
     }
     
     // Verificar que network existe y está inicializado
@@ -1968,39 +2462,42 @@ function actualizarContadores(obrasData) {
     document.getElementById('count-festivales').textContent = festivalesUnicos;
 }
 
-// Definir la función globalmente antes de cualquier otro código JavaScript
-// window.toggleVisualizations = function() {
-//     console.log('Función toggleVisualizations llamada'); // Debug
-//     
-//     const visualizationsSection = document.getElementById('visualizationsSection');
-//     const toggleBtn = document.getElementById('toggleVisualizationsBtn');
-//     const arrow = toggleBtn.querySelector('.arrow');
-//     
-//     console.log('Estado actual:', visualizationsSection.classList.contains('collapsed')); // Debug
-//     
-//     visualizationsSection.classList.toggle('collapsed');
-//     
-//     // Rotar la flecha
-//     arrow.style.transform = visualizationsSection.classList.contains('collapsed') 
-//         ? 'rotate(0deg)' 
-//         : 'rotate(180deg)';
-//     
-//     // Si las visualizaciones están visibles, actualizar el mapa
-//     if (!visualizationsSection.classList.contains('collapsed')) {
-//         if (typeof map !== 'undefined' && map) {
-//             map.invalidateSize();
-//         }
-//     }
-// };
+// Función para mostrar/ocultar el panel de nodos
+window.toggleNetworkPanel = function() {
+    const networkContainer = document.getElementById('network-container');
+    const toggleText = document.getElementById('network-toggle-text');
+    
+    networkContainer.classList.toggle('collapsed');
+    
+    // Cambiar el texto del botón
+    if (networkContainer.classList.contains('collapsed')) {
+        toggleText.textContent = 'Mostrar Grafo';
+    } else {
+        toggleText.textContent = 'Ocultar Grafo';
+        // Actualizar el tamaño del network cuando se muestra
+        if (network) {
+            setTimeout(() => {
+                network.fit();
+            }, 300);
+        }
+    }
+    
+    // Actualizar el mapa después de la transición
+    setTimeout(() => {
+        if (map) {
+            map.invalidateSize();
+        }
+    }, 300);
+};
 
 // Definir las funciones en el scope global (window)
 window.showAuthors = function() {
     console.log('Iniciando showAuthors');
     
-    // Asegurarse de que el visualizationsSection esté visible
-    const visualizationsSection = document.getElementById('visualizationsSection');
-    if (visualizationsSection.classList.contains('collapsed')) {
-        toggleVisualizations();
+    // Asegurarse de que el panel de network esté visible
+    const networkContainer = document.getElementById('network-container');
+    if (networkContainer.classList.contains('collapsed')) {
+        toggleNetworkPanel();
     }
     
     // Verificar que network existe y está inicializado
@@ -2014,9 +2511,11 @@ window.showAuthors = function() {
 
 window.showWorks = function() {
     console.log('Mostrar obras en el gráfico de nodos');
-    const visualizationsSection = document.getElementById('visualizationsSection');
-    if (visualizationsSection.classList.contains('collapsed')) {
-        toggleVisualizations();
+    
+    // Asegurarse de que el panel de network esté visible
+    const networkContainer = document.getElementById('network-container');
+    if (networkContainer.classList.contains('collapsed')) {
+        toggleNetworkPanel();
     }
     
     if (typeof network !== 'undefined' && network) {
@@ -2026,9 +2525,11 @@ window.showWorks = function() {
 
 window.showFestivals = function() {
     console.log('Mostrar festivales en el gráfico de nodos');
-    const visualizationsSection = document.getElementById('visualizationsSection');
-    if (visualizationsSection.classList.contains('collapsed')) {
-        toggleVisualizations();
+    
+    // Asegurarse de que el panel de network esté visible
+    const networkContainer = document.getElementById('network-container');
+    if (networkContainer.classList.contains('collapsed')) {
+        toggleNetworkPanel();
     }
     
     if (typeof network !== 'undefined' && network) {
@@ -2279,6 +2780,46 @@ function mostrarDatosRelacionados(tipo, valor) {
         return obra[tipo] === valor;
     });
 
+    // Ajustar el mapa para mostrar todos los marcadores filtrados
+    const mapInfoOverlay = document.getElementById('mapInfoOverlay');
+    if (map && obrasRelacionadas.length > 0) {
+        const coordenadas = obrasRelacionadas
+            .map(obra => {
+                const lat = parseFloat(obra.lat);
+                const lon = parseFloat(obra.lon);
+                return !isNaN(lat) && !isNaN(lon) && lat !== 0 && lon !== 0 ? [lat, lon] : null;
+            })
+            .filter(coord => coord !== null);
+        
+        if (coordenadas.length > 0) {
+            // Hay coordenadas, ocultar el cartel y ajustar el mapa
+            if (mapInfoOverlay) {
+                mapInfoOverlay.classList.remove('visible');
+            }
+            const bounds = L.latLngBounds(coordenadas);
+            // Delay más largo para que primero se actualicen los marcadores
+            // y luego se haga un zoom suave a los nuevos
+            setTimeout(() => {
+                map.fitBounds(bounds, {
+                    padding: [50, 50],
+                    maxZoom: 15,
+                    animate: true,
+                    duration: 1.0  // Animación suave de 1 segundo
+                });
+            }, 500);
+        } else {
+            // No hay coordenadas, mostrar el cartel informativo
+            if (mapInfoOverlay) {
+                mapInfoOverlay.classList.add('visible');
+            }
+        }
+    } else if (obrasRelacionadas.length === 0) {
+        // No hay obras relacionadas, ocultar el cartel
+        if (mapInfoOverlay) {
+            mapInfoOverlay.classList.remove('visible');
+        }
+    }
+
     // Crear el objeto JSON con las estadísticas
     const datosJSON = {
         tipo: tipo,
@@ -2389,11 +2930,13 @@ function mostrarDatosRelacionados(tipo, valor) {
             hoverConnectedEdges: false,
             tooltipDelay: 0,
             selectable: true,
-            selectConnectedEdges: false
+            selectConnectedEdges: false,
+            zoomView: false,
+            dragView: false
         }
     };
 
-    // Actualizar el network
+    // Actualizar el network (sin abrir el panel automáticamente)
     if (network) {
         network.setData({ nodes, edges });
         network.setOptions(options);
@@ -2690,6 +3233,318 @@ function obtenerListaDetallada(obras, tipo) {
             return [];
     }
 }
+
+// Función para abrir el modal de JSON-LD
+window.abrirModalJsonLD = function() {
+    const modal = document.getElementById('jsonLDModal');
+    const jsonContainer = document.getElementById('jsonLDContent');
+    const filterSummary = document.getElementById('filterSummary');
+    const generatedPhrases = document.getElementById('generatedPhrases');
+    
+    // Obtener las obras actualmente filtradas
+    const tbody = document.querySelector('#tablaObras tbody');
+    const obrasFiltradas = obrasOriginales.filter((obra, index) => {
+        // Si hay filas en la tabla, solo incluir las que están visibles
+        if (tbody && tbody.rows.length > 0) {
+            return index < tbody.rows.length;
+        }
+        return true;
+    });
+    
+    // Generar resumen de filtros activos
+    const filtrosActivos = obtenerFiltrosActivos();
+    if (filtrosActivos.length > 0) {
+        filterSummary.innerHTML = `
+            <h3><i class="fas fa-filter"></i> Filtros aplicados (${filtrosActivos.length})</h3>
+            <div class="filter-tags">
+                ${filtrosActivos.map(filtro => `
+                    <span class="filter-tag">
+                        <i class="${filtro.icon}"></i>
+                        ${filtro.label}: ${filtro.value}
+                    </span>
+                `).join('')}
+            </div>
+        `;
+        filterSummary.style.display = 'block';
+    } else {
+        filterSummary.innerHTML = `
+            <h3><i class="fas fa-info-circle"></i> Sin filtros aplicados</h3>
+            <p>Mostrando todas las obras (${obrasFiltradas.length} registros)</p>
+        `;
+        filterSummary.style.display = 'block';
+    }
+    
+    // Generar frases automáticas
+    const frases = generarFrasesAutomaticas(obrasFiltradas);
+    generatedPhrases.innerHTML = `
+        <h3><i class="fas fa-comment-dots"></i> Descripciones generadas (${frases.length})</h3>
+        ${frases.map(frase => `<div class="phrase-item">${frase}</div>`).join('')}
+    `;
+    
+    // Generar JSON-LD
+    const jsonLD = generarJsonLD(obrasFiltradas);
+    jsonContainer.textContent = JSON.stringify(jsonLD, null, 2);
+    
+    // Mostrar modal
+    modal.classList.add('active');
+};
+
+// Función para cerrar el modal
+window.cerrarModalJsonLD = function() {
+    const modal = document.getElementById('jsonLDModal');
+    modal.classList.remove('active');
+};
+
+// Función para copiar JSON-LD al portapapeles
+window.copiarJsonLD = function() {
+    const jsonContent = document.getElementById('jsonLDContent').textContent;
+    const btnCopy = document.querySelector('.btn-copy');
+    
+    navigator.clipboard.writeText(jsonContent).then(() => {
+        // Cambiar el texto y estilo del botón temporalmente
+        const originalHTML = btnCopy.innerHTML;
+        btnCopy.innerHTML = '<i class="fas fa-check"></i><span>¡Copiado!</span>';
+        btnCopy.classList.add('copied');
+        
+        setTimeout(() => {
+            btnCopy.innerHTML = originalHTML;
+            btnCopy.classList.remove('copied');
+        }, 2000);
+    }).catch(err => {
+        console.error('Error al copiar:', err);
+        alert('No se pudo copiar al portapapeles');
+    });
+};
+
+// Función para descargar JSON-LD
+window.descargarJsonLD = function() {
+    const jsonContent = document.getElementById('jsonLDContent').textContent;
+    const blob = new Blob([jsonContent], { type: 'application/ld+json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'tce-sxxi-data.jsonld';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+};
+
+// Función para generar JSON-LD
+function generarJsonLD(obras) {
+    const jsonLD = {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "name": "Teatro Clásico Español - Siglo XXI",
+        "description": "Colección de obras del Teatro Clásico Español del Siglo XXI",
+        "numberOfItems": obras.length,
+        "itemListElement": obras.map((obra, index) => ({
+            "@type": "ListItem",
+            "position": index + 1,
+            "item": {
+                "@type": "TheaterEvent",
+                "@id": `tce-sxxi-${obra.id}`,
+                "name": obra.Obra || "Sin título",
+                "author": {
+                    "@type": "Person",
+                    "name": obra['Autor/a'] || "Desconocido"
+                },
+                "director": {
+                    "@type": "Person",
+                    "name": obra.Dirección || "Desconocido"
+                },
+                "organizer": obra['Compañía'] ? {
+                    "@type": "Organization",
+                    "name": obra['Compañía']
+                } : undefined,
+                "startDate": obra['Fecha de estreno'] || undefined,
+                "location": obra['Lugar de estreno'] ? {
+                    "@type": "Place",
+                    "name": obra['Lugar de estreno'],
+                    "geo": (obra.lat && obra.lon && parseFloat(obra.lat) !== 0 && parseFloat(obra.lon) !== 0) ? {
+                        "@type": "GeoCoordinates",
+                        "latitude": parseFloat(obra.lat),
+                        "longitude": parseFloat(obra.lon)
+                    } : undefined
+                } : undefined,
+                "eventStatus": "https://schema.org/EventScheduled",
+                "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+                "inLanguage": "es",
+                "about": obra.Festivales ? obra.Festivales.split(',').map(f => f.trim()) : undefined,
+                "additionalType": obra.tipo || undefined
+            }
+        })),
+        "creator": {
+            "@type": "Person",
+            "name": "Iván Simó Sánchez",
+            "email": "isimo@ucm.es"
+        },
+        "dateCreated": new Date().toISOString().split('T')[0],
+        "license": "https://creativecommons.org/licenses/by/4.0/"
+    };
+    
+    return jsonLD;
+}
+
+// Función para obtener los filtros activos
+function obtenerFiltrosActivos() {
+    const filtros = [];
+    
+    // Mapeo de campos con sus iconos
+    const campos = [
+        { id: 'busqueda-autor', label: 'Autor', icon: 'fas fa-user' },
+        { id: 'busqueda-obra', label: 'Obra', icon: 'fas fa-theater-masks' },
+        { id: 'busqueda-direccion', label: 'Dirección', icon: 'fas fa-film' },
+        { id: 'busqueda-compania', label: 'Compañía', icon: 'fas fa-users' },
+        { id: 'busqueda-festivales', label: 'Festival', icon: 'fas fa-calendar-alt' },
+        { id: 'busqueda-lugar', label: 'Lugar', icon: 'fas fa-map-marker-alt' }
+    ];
+    
+    campos.forEach(campo => {
+        const valor = document.getElementById(campo.id)?.value;
+        if (valor) {
+            filtros.push({
+                label: campo.label,
+                value: valor,
+                icon: campo.icon
+            });
+        }
+    });
+    
+    // Fechas
+    const fechaInicio = document.getElementById('fechaInicio')?.value;
+    const fechaFin = document.getElementById('fechaFin')?.value;
+    if (fechaInicio || fechaFin) {
+        const rango = fechaInicio && fechaFin 
+            ? `${fechaInicio} a ${fechaFin}`
+            : fechaInicio 
+                ? `desde ${fechaInicio}`
+                : `hasta ${fechaFin}`;
+        filtros.push({
+            label: 'Fechas',
+            value: rango,
+            icon: 'fas fa-calendar'
+        });
+    }
+    
+    // Tipo
+    const tipo = document.getElementById('filtroTipo')?.value;
+    if (tipo) {
+        filtros.push({
+            label: 'Tipo',
+            value: tipo,
+            icon: 'fas fa-tag'
+        });
+    }
+    
+    return filtros;
+}
+
+// Función para generar frases automáticas
+function generarFrasesAutomaticas(obras) {
+    return obras.map(obra => {
+        const partes = [];
+        
+        // Núcleo: la obra
+        if (obra.Obra) {
+            partes.push(`<span class="phrase-highlight">${obra.Obra}</span>`);
+        }
+        
+        // Autor
+        if (obra['Autor/a']) {
+            partes.push(`escrita por <span class="phrase-highlight">${obra['Autor/a']}</span>`);
+        }
+        
+        // Dirección
+        if (obra.Dirección) {
+            partes.push(`dirigida por <span class="phrase-highlight">${obra.Dirección}</span>`);
+        }
+        
+        // Compañía
+        if (obra['Compañía']) {
+            partes.push(`producida por <span class="phrase-highlight">${obra['Compañía']}</span>`);
+        }
+        
+        // Lugar y fecha
+        const lugar = obra['Lugar de estreno'];
+        const fecha = obra['Fecha de estreno'];
+        
+        if (lugar && fecha) {
+            partes.push(`estrenada en <span class="phrase-highlight">${lugar}</span> el <span class="phrase-highlight">${fecha}</span>`);
+        } else if (lugar) {
+            partes.push(`estrenada en <span class="phrase-highlight">${lugar}</span>`);
+        } else if (fecha) {
+            partes.push(`estrenada el <span class="phrase-highlight">${fecha}</span>`);
+        }
+        
+        // Festivales
+        if (obra.Festivales) {
+            const festivales = obra.Festivales.split(',').map(f => f.trim());
+            if (festivales.length === 1) {
+                partes.push(`presentada en el festival <span class="phrase-highlight">${festivales[0]}</span>`);
+            } else if (festivales.length > 1) {
+                partes.push(`presentada en los festivales <span class="phrase-highlight">${festivales.join(', ')}</span>`);
+            }
+        }
+        
+        // Tipo
+        if (obra.tipo) {
+            partes.push(`de carácter <span class="phrase-highlight">${obra.tipo.toLowerCase()}</span>`);
+        }
+        
+        // Unir todo con comas y punto final
+        return partes.join(', ') + '.';
+    });
+}
+
+// Cerrar modal al hacer clic fuera
+window.onclick = function(event) {
+    const modal = document.getElementById('jsonLDModal');
+    if (event.target === modal) {
+        cerrarModalJsonLD();
+    }
+};
     </script>
+
+    <!-- Modal para JSON-LD -->
+    <div id="jsonLDModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>
+                    <i class="fas fa-code"></i>
+                    Exportar datos estructurados
+                </h2>
+                <button class="modal-close" onclick="cerrarModalJsonLD()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Resumen de filtros activos -->
+                <div id="filterSummary" class="summary-section"></div>
+                
+                <!-- Frases generadas automáticamente -->
+                <div id="generatedPhrases" class="generated-phrases"></div>
+                
+                <!-- JSON-LD -->
+                <div class="json-section">
+                    <h3>
+                        <i class="fas fa-brackets-curly"></i>
+                        JSON-LD Estructurado
+                    </h3>
+                    <pre id="jsonLDContent" class="json-ld-container"></pre>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-copy" onclick="copiarJsonLD()">
+                    <i class="fas fa-copy"></i>
+                    <span>Copiar JSON-LD</span>
+                </button>
+                <button class="btn-download" onclick="descargarJsonLD()">
+                    <i class="fas fa-download"></i>
+                    <span>Descargar archivo</span>
+                </button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
