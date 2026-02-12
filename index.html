@@ -365,6 +365,42 @@
         font-size: 1.2em;
     }
 
+    /* Contenedor de botones de exportación sobre la tabla */
+    .export-buttons-container {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-bottom: 10px;
+        padding: 0 5px;
+    }
+
+    /* Botón para exportar CSV */
+    .csv-btn {
+        padding: 10px 18px;
+        background-color: #2196F3;
+        color: white;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.95em;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+
+    .csv-btn:hover {
+        background-color: #1976D2;
+        transform: scale(1.05);
+        box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+    }
+
+    .csv-btn i {
+        font-size: 1.1em;
+    }
+
     /* Modal para JSON-LD */
     .modal-overlay {
         display: none;
@@ -1651,6 +1687,14 @@
                 </div>
             </div>
             
+            <!-- Botones de exportación -->
+            <div class="export-buttons-container">
+                <button class="csv-btn" onclick="exportarCSV()">
+                    <i class="fas fa-file-csv"></i>
+                    <span>Exportar CSV</span>
+                </button>
+            </div>
+            
             <!-- Contenedor de la tabla -->
             <div class="table-container">
                 <table id="tablaObras">
@@ -1674,6 +1718,7 @@
 
     <script>
         let obrasOriginales = [];
+        let obrasFiltradas = []; // Obras actualmente filtradas
         let ordenAscendente = true;
         let map;
         let network;
@@ -1898,7 +1943,8 @@ function filtrarObras() {
             valor: normalizarTexto(document.getElementById(f.id)?.value || '')
         }));
 
-        const obrasFiltradas = obrasOriginales.filter(obra => {
+        // Guardar las obras filtradas en la variable global
+        obrasFiltradas = obrasOriginales.filter(obra => {
             // Verificar cada filtro de texto
             const cumpleFiltrosTexto = filtros.every(({ campo, valor }) => {
                 if (!valor) return true;
@@ -2005,6 +2051,9 @@ function resetearFiltros() {
     document.getElementById('fechaFin').value = '';
     document.getElementById('busquedaExacta').checked = false;
     document.getElementById('filtroTipo').value = '';
+    
+    // Resetear la variable global de obras filtradas
+    obrasFiltradas = [...obrasOriginales];
     
     // Resetear la tabla
     llenarTabla(obrasOriginales);
@@ -3156,6 +3205,9 @@ async function inicializarAplicacion() {
         // Cargar los datos
         obrasOriginales = await obtenerObras();
         
+        // Inicializar obras filtradas con todas las obras
+        obrasFiltradas = [...obrasOriginales];
+        
         // Inicializar visualizaciones
         initMap();
         initNetwork();
@@ -3558,6 +3610,77 @@ window.onclick = function(event) {
     if (event.target === modal) {
         cerrarModalJsonLD();
     }
+};
+
+// Función para exportar los datos filtrados a CSV
+window.exportarCSV = function() {
+    // Si no hay obras filtradas, usar todas las obras
+    const obrasAExportar = (obrasFiltradas && obrasFiltradas.length > 0) ? obrasFiltradas : obrasOriginales;
+    
+    if (!obrasAExportar || obrasAExportar.length === 0) {
+        alert('No hay datos para exportar.');
+        return;
+    }
+    
+    // Definir los encabezados del CSV (todos los campos disponibles)
+    const headers = [
+        'id',
+        'Autor/a',
+        'Obra',
+        'Fecha de estreno',
+        'Dirección',
+        'Compañía',
+        'Festivales',
+        'Lugar de estreno',
+        'lat',
+        'lon',
+        'uuid',
+        'tipo'
+    ];
+    
+    // Función para escapar valores CSV (comillas dobles y comas)
+    const escaparCSV = (valor) => {
+        if (valor === null || valor === undefined) return '';
+        const valorStr = String(valor);
+        // Si contiene coma, salto de línea o comillas, envolver en comillas dobles
+        if (valorStr.includes(',') || valorStr.includes('\n') || valorStr.includes('"')) {
+            return `"${valorStr.replace(/"/g, '""')}"`;
+        }
+        return valorStr;
+    };
+    
+    // Crear la línea de encabezados
+    let csvContent = headers.map(escaparCSV).join(',') + '\n';
+    
+    // Agregar cada fila de datos
+    obrasAExportar.forEach(obra => {
+        const fila = headers.map(header => escaparCSV(obra[header]));
+        csvContent += fila.join(',') + '\n';
+    });
+    
+    // Crear el blob y descargar
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    
+    // Generar nombre de archivo con fecha y hora
+    const ahora = new Date();
+    const fecha = ahora.toISOString().split('T')[0];
+    const hora = ahora.toTimeString().split(' ')[0].replace(/:/g, '-');
+    const nombreArchivo = `obras-tce-${fecha}_${hora}.csv`;
+    
+    // Descargar el archivo
+    if (navigator.msSaveBlob) { // IE 10+
+        navigator.msSaveBlob(blob, nombreArchivo);
+    } else {
+        link.href = URL.createObjectURL(blob);
+        link.download = nombreArchivo;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+    
+    console.log(`CSV exportado: ${obrasAExportar.length} obras en ${nombreArchivo}`);
 };
     </script>
 
